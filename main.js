@@ -15,7 +15,7 @@
   // файл в assets/. lab, manifesto-sky, ingredients-levitation, sky-panorama
   // не менялись (глава 4 ждёт мужского персонажа; UGC-полоса не трогается) — остаются старыми jpg.
   var ASSET_FILES = {
-    "hero-sky":              "SB-01.png",
+    "hero-sky":              "SB-01-nb2.png",
     "jar-front":             "SB-02a.png",
     "jar-quarter":           "SB-02b.png",
     "jar-side":              "SB-02c.png",
@@ -126,7 +126,6 @@
      ================================================================ */
   function initApp(){
     var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var isMobile = window.matchMedia("(max-width:767px)").matches;
 
     if (reducedMotion){ document.body.classList.add("reduced-motion"); }
 
@@ -219,7 +218,8 @@
       // Пины отключены глобально через body.reduced-motion (CSS). JS-сцены ниже пропускаем.
       initCounters();
       initForms();
-      initMissionReveal(true);
+      initReveal("#mission-wrap", true);
+      initReveal("#members", true);
       return;
     }
 
@@ -393,8 +393,9 @@
       }
     });
 
-    /* ---------- ГЛАВА 6: миссия + карточки-приглашения — reveal при входе (без пина) ---------- */
-    initMissionReveal(false);
+    /* ---------- ГЛАВЫ 6/7: миссия + карточки-приглашения + пайщики — reveal при входе (без пина) ---------- */
+    initReveal("#mission-wrap", false);
+    initReveal("#members", false);
 
     initCounters();
     initForms();
@@ -402,9 +403,9 @@
     ScrollTrigger.refresh();
   }
 
-  /* ---------- ГЛАВА 6: reveal-анимация контента (y+opacity, не pin) ---------- */
-  function initMissionReveal(reducedMotion){
-    var items = document.querySelectorAll("#mission-wrap .reveal");
+  /* ---------- ГЛАВЫ 6/7: reveal-анимация контента (y+opacity, не pin) ---------- */
+  function initReveal(rootSelector, reducedMotion){
+    var items = document.querySelectorAll(rootSelector + " .reveal");
     if (!items.length) return;
 
     if (reducedMotion || !window.gsap || !window.ScrollTrigger){
@@ -431,12 +432,14 @@
     var counterEl = document.getElementById("preorder-count");
     var progressFill = document.getElementById("preorder-progress-fill");
     if (!counterEl) return;
-    var target = parseInt(counterEl.getAttribute("data-target"), 10) || 0;
     var animated = false;
 
     function run(){
       if (animated) return;
       animated = true;
+      // data-target читаем именно тут (не в момент вызова initCounters), чтобы
+      // успеть подхватить обновление от /api/summary — см. applyLiveSummary().
+      var target = parseInt(counterEl.getAttribute("data-target"), 10) || 0;
       if (progressFill) progressFill.style.width = Math.round((target/500)*100) + "%";
 
       if (window.gsap && !document.body.classList.contains("reduced-motion")){
@@ -476,37 +479,47 @@
 
         var hasRole = !!form.elements["role"];
         var hasCity = !!form.elements["city"];
-        var data;
+
+        var nameVal = form.elements["name"] ? form.elements["name"].value : "";
+        var contactVal = form.elements["contact"] ? form.elements["contact"].value : "";
+        var roleVal = null;
+        var cityVal = null;
+
+        var payload = {
+          type: (hasRole && hasCity) ? "preorder" : "pai",
+          name: nameVal,
+          contact: contactVal
+        };
 
         if (hasRole && hasCity){
           // Расширенная форма предзаказа (глава 5): роль + город + карта заявок.
           var roleInput = form.querySelector('input[name="role"]:checked');
-          var roleVal = roleInput ? roleInput.value : "consumer";
-          var cityVal = form.elements["city"].value || "";
+          roleVal = roleInput ? roleInput.value : "consumer";
+          cityVal = form.elements["city"].value || "";
 
-          data = {
-            name: form.elements["name"] ? form.elements["name"].value : "",
-            contact: form.elements["contact"] ? form.elements["contact"].value : "",
-            role: roleVal,
-            city: cityVal,
-            ts: Date.now()
-          };
+          payload.role = ROLE_TO_API[roleVal] || roleVal;
+          payload.city = cityVal;
+        }
 
-          try {
-            window.localStorage.setItem(key, JSON.stringify(data));
-          } catch (err) {
-            // localStorage может быть недоступен (приватный режим) — не блокируем UX
+        function finish(){
+          if (hasRole && hasCity){
+            registerPreorderOnMap(cityVal, roleVal);
           }
+          var success = document.createElement("div");
+          success.className = "reserve-success";
+          success.textContent = "Вы в списке первой варки. №" + num;
+          form.replaceWith(success);
+        }
 
-          registerPreorderOnMap(cityVal, roleVal);
-        } else {
-          data = {
-            name: form.elements["name"] ? form.elements["name"].value : "",
-            contact: form.elements["contact"] ? form.elements["contact"].value : "",
-            number: num,
-            ts: Date.now()
-          };
-
+        function fallbackLocalStorage(){
+          // FALLBACK: бэкенд недоступен (сеть упала/500) — сохраняем локально,
+          // как было до появления api/lead.js. Не блокирует UX пользователя.
+          var data;
+          if (hasRole && hasCity){
+            data = { name:nameVal, contact:contactVal, role:roleVal, city:cityVal, ts:Date.now() };
+          } else {
+            data = { name:nameVal, contact:contactVal, number:num, ts:Date.now() };
+          }
           try {
             window.localStorage.setItem(key, JSON.stringify(data));
           } catch (err) {
@@ -514,10 +527,18 @@
           }
         }
 
-        var success = document.createElement("div");
-        success.className = "reserve-success";
-        success.textContent = "Вы в списке первой варки. №" + num;
-        form.replaceWith(success);
+        fetch("/api/lead", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        }).then(function(res){
+          if (!res.ok){ throw new Error("bad status " + res.status); }
+          finish();
+        }).catch(function(){
+          // FALLBACK: сетевая ошибка/бэкенд недоступен — прежний localStorage-путь.
+          fallbackLocalStorage();
+          finish();
+        });
       });
     });
   }
@@ -533,6 +554,18 @@
     logistics: { label:"Логистика",   color:"#E4557A" }
   };
   var ROLE_ORDER = ["consumer","farmer","workshop","warehouse","logistics"];
+
+  // Бэкенд (api/lead.js) хранит/отдаёт роль как русское слово из фиксированного
+  // списка — нужно сопоставление с внутренними латинскими кодами ролей, которые
+  // использует вся остальная логика карты (ROLE_META, data-role, CSS-переменные).
+  var ROLE_TO_API = {
+    consumer:"потребитель", farmer:"фермер", workshop:"цех",
+    warehouse:"склад", logistics:"логистика"
+  };
+  var ROLE_FROM_API = {
+    "потребитель":"consumer", "фермер":"farmer", "цех":"workshop",
+    "склад":"warehouse", "логистика":"logistics"
+  };
 
   // Координаты городов в % от viewBox карты (0..100 по x и y).
   // Пересчитаны из реальных lat/lon той же проекцией, что и контур России
@@ -722,9 +755,49 @@
       registerCount(p.city, p.role, added);
     });
 
-    loadStoredMapPoints().forEach(function(p){
-      var added = addDotToMap(p.city, p.role, p.delay);
-      registerCount(p.city, p.role, added);
+    updateTotals();
+    hydrateLiveSummary();
+  }
+
+  // Живые данные с бэкенда (api/summary.js): реальные предзаказы поверх демо.
+  // Раньше здесь подмешивались точки из localStorage (banochka_map_points) —
+  // теперь источник правды один — сервер. Сеть недоступна/бэкенд не ответил →
+  // молча остаёмся на демо-данных (как было раньше).
+  function hydrateLiveSummary(){
+    fetch("/api/summary")
+      .then(function(res){
+        if (!res.ok){ throw new Error("bad status " + res.status); }
+        return res.json();
+      })
+      .then(applyLiveSummary)
+      .catch(function(){ /* нет сети/бэкенда — остаёмся на демо */ });
+  }
+
+  function dominantApiRole(rolesObj){
+    var best = null, bestCount = -1;
+    Object.keys(rolesObj || {}).forEach(function(apiRole){
+      var count = rolesObj[apiRole];
+      if (count > bestCount){ bestCount = count; best = apiRole; }
+    });
+    return best;
+  }
+
+  function applyLiveSummary(summary){
+    if (!summary) return;
+
+    // Глава 5: счётчик предзаказов = демо-база (137) + реальные предзаказы.
+    var counterEl = document.getElementById("preorder-count");
+    if (counterEl){
+      counterEl.setAttribute("data-target", String(137 + (summary.preorders || 0)));
+    }
+
+    // Глава 6: одна живая точка на город из byCity, цвет — преобладающая роль.
+    var byCity = summary.byCity || {};
+    Object.keys(byCity).forEach(function(cityName){
+      var apiRole = dominantApiRole(byCity[cityName] && byCity[cityName].roles);
+      var role = ROLE_FROM_API[apiRole] || "consumer";
+      var added = addDotToMap(cityName, role);
+      registerCount(cityName, role, added);
     });
 
     updateTotals();
