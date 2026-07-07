@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Баночка — админка заявок</title>
+<meta name="robots" content="noindex, nofollow">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800;900&family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+<style>
+  body.admin-body{
+    min-height:100vh;
+    background:linear-gradient(160deg, var(--sky-2) 0%, var(--ink) 85%);
+  }
+
+  /* ---------- Экран входа ---------- */
+  .admin-login{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+
+  .admin-login-card{
+    width:100%;
+    max-width:380px;
+    background:rgba(250,246,239,0.05);
+    border:1px solid rgba(250,246,239,0.16);
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+    border-radius:18px;
+    padding:36px 28px;
+    text-align:center;
+  }
+
+  .admin-login-card h1{
+    font-family:var(--font-head);
+    font-size:20px;
+    letter-spacing:0.04em;
+    color:var(--amber);
+    margin-bottom:10px;
+  }
+
+  .admin-login-sub{
+    font-size:14px;
+    color:rgba(250,246,239,0.72);
+    margin-bottom:24px;
+  }
+
+  .admin-login-card form{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+
+  .admin-login-card input[type="password"]{
+    padding:14px 16px;
+    border-radius:12px;
+    border:1px solid rgba(250,246,239,0.24);
+    background:rgba(250,246,239,0.06);
+    color:var(--cream);
+    font-family:var(--font-body);
+    font-size:15px;
+  }
+
+  .admin-login-card input[type="password"]::placeholder{ color:rgba(250,246,239,0.5); }
+
+  .admin-login-card input[type="password"]:focus{
+    outline:2px solid var(--sunset);
+    outline-offset:2px;
+  }
+
+  .admin-login-card button{ border:none; width:100%; }
+
+  .admin-error{
+    margin-top:16px;
+    font-size:13px;
+    color:var(--role-logistics);
+  }
+
+  /* ---------- Дашборд ---------- */
+  .admin-dashboard{
+    max-width:1200px;
+    margin:0 auto;
+    padding:40px 24px 80px;
+    color:var(--cream);
+  }
+
+  .admin-header{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:32px;
+  }
+
+  .admin-header h1{
+    font-family:var(--font-head);
+    font-size:22px;
+    letter-spacing:0.04em;
+    color:var(--amber);
+  }
+
+  .admin-header-actions{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+
+  .admin-header-actions .btn{ padding:10px 20px; font-size:13px; }
+  .admin-header-actions .btn-ghost{ color:var(--cream); border-color:rgba(250,246,239,0.4); }
+
+  .admin-summary{
+    display:flex;
+    flex-wrap:wrap;
+    gap:16px;
+    margin-bottom:36px;
+  }
+
+  .admin-stat{
+    background:rgba(250,246,239,0.05);
+    border:1px solid rgba(250,246,239,0.16);
+    border-radius:14px;
+    padding:18px 22px;
+    min-width:150px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+
+  .admin-stat-num{
+    font-family:var(--font-head);
+    font-weight:800;
+    font-size:32px;
+    color:var(--sunset);
+    line-height:1;
+  }
+
+  .admin-stat-label{
+    font-size:11px;
+    letter-spacing:0.06em;
+    color:rgba(250,246,239,0.65);
+  }
+
+  .admin-breakdown{
+    background:rgba(250,246,239,0.05);
+    border:1px solid rgba(250,246,239,0.16);
+    border-radius:14px;
+    padding:18px 22px;
+    min-width:200px;
+    flex:1 1 220px;
+  }
+
+  .admin-breakdown h3{
+    font-size:12px;
+    letter-spacing:0.08em;
+    color:var(--amber);
+    margin:0 0 12px;
+  }
+
+  .admin-breakdown ul{
+    list-style:none;
+    margin:0; padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    max-height:220px;
+    overflow-y:auto;
+  }
+
+  .admin-breakdown li{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    color:rgba(250,246,239,0.9);
+  }
+
+  .admin-swatch{
+    width:9px; height:9px;
+    border-radius:50%;
+    flex:none;
+    display:inline-block;
+  }
+
+  .admin-table-wrap{
+    overflow-x:auto;
+    border:1px solid rgba(250,246,239,0.16);
+    border-radius:14px;
+  }
+
+  .admin-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+    min-width:640px;
+  }
+
+  .admin-table th,
+  .admin-table td{
+    text-align:left;
+    padding:12px 16px;
+    border-bottom:1px solid rgba(250,246,239,0.12);
+    white-space:nowrap;
+  }
+
+  .admin-table th{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.06em;
+    color:var(--amber);
+    background:rgba(250,246,239,0.04);
+  }
+
+  .admin-table tbody tr:hover{ background:rgba(250,246,239,0.04); }
+
+  .admin-empty{
+    text-align:center;
+    opacity:0.6;
+    padding:32px !important;
+    white-space:normal !important;
+  }
+
+  [hidden]{ display:none !important; }
+</style>
+</head>
+<body class="admin-body">
+
+<div id="admin-login" class="admin-login">
+  <div class="admin-login-card">
+    <h1 class="mono">БАНОЧКА · АДМИНКА</h1>
+    <p class="admin-login-sub">Введите пароль администратора, чтобы увидеть заявки</p>
+    <form id="admin-login-form">
+      <input type="password" id="admin-password" placeholder="Пароль" autocomplete="current-password" required>
+      <button type="submit" class="btn btn-primary">Войти</button>
+    </form>
+    <p id="admin-login-error" class="admin-error" hidden>Неверный пароль</p>
+  </div>
+</div>
+
+<div id="admin-dashboard" class="admin-dashboard" hidden>
+  <header class="admin-header">
+    <h1 class="mono">БАНОЧКА · ЗАЯВКИ</h1>
+    <div class="admin-header-actions">
+      <button type="button" id="admin-export" class="btn btn-ghost">Экспорт CSV</button>
+      <button type="button" id="admin-logout" class="btn btn-ghost">Выйти</button>
+    </div>
+  </header>
+
+  <section class="admin-summary" id="admin-summary"></section>
+
+  <section class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Дата</th>
+          <th>Тип</th>
+          <th>Имя</th>
+          <th>Контакт</th>
+          <th>Роль</th>
+          <th>Город</th>
+        </tr>
+      </thead>
+      <tbody id="admin-table-body"></tbody>
+    </table>
+  </section>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var SS_KEY = "banochka_admin_pw";
+
+  var loginEl = document.getElementById("admin-login");
+  var dashEl = document.getElementById("admin-dashboard");
+  var errEl = document.getElementById("admin-login-error");
+  var formEl = document.getElementById("admin-login-form");
+  var pwInput = document.getElementById("admin-password");
+  var logoutBtn = document.getElementById("admin-logout");
+  var exportBtn = document.getElementById("admin-export");
+  var tableBody = document.getElementById("admin-table-body");
+  var summaryEl = document.getElementById("admin-summary");
+
+  var currentLeads = [];
+
+  var ROLE_COLORS = {
+    "потребитель": "#F4A824",
+    "фермер": "#7BC47F",
+    "цех": "#FF8A3D",
+    "склад": "#6FA8DC",
+    "логистика": "#E4557A"
+  };
+
+  function showError(msg){
+    errEl.textContent = msg;
+    errEl.hidden = false;
+  }
+  function hideError(){ errEl.hidden = true; }
+
+  function capitalize(s){
+    s = String(s || "");
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  function escapeHtml(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c];
+    });
+  }
+
+  function typeLabel(t){
+    if (t === "preorder") return "Предзаказ";
+    if (t === "pai") return "Пайщик";
+    return t || "—";
+  }
+
+  function formatDate(ts){
+    if (!ts) return "—";
+    try { return new Date(ts).toLocaleString("ru-RU"); }
+    catch (err){ return String(ts); }
+  }
+
+  function fetchLeads(password){
+    hideError();
+    return fetch("/api/admin-leads", {
+      headers: { "Authorization": "Bearer " + password }
+    }).then(function(res){
+      if (res.status === 401){
+        showError("Неверный пароль");
+        try { window.sessionStorage.removeItem(SS_KEY); } catch (err){}
+        return null;
+      }
+      if (!res.ok){
+        showError("Ошибка загрузки данных (" + res.status + ")");
+        return null;
+      }
+      return res.json();
+    }).catch(function(){
+      showError("Сеть недоступна, попробуйте ещё раз");
+      return null;
+    });
+  }
+
+  function renderSummary(leads){
+    var preorders = 0;
+    var byRole = {};
+    var byCity = {};
+
+    leads.forEach(function(l){
+      if (l.type === "preorder") preorders++;
+      if (l.role) byRole[l.role] = (byRole[l.role] || 0) + 1;
+      if (l.city) byCity[l.city] = (byCity[l.city] || 0) + 1;
+    });
+
+    var html = "";
+    html += '<div class="admin-stat"><span class="admin-stat-num">' + leads.length + '</span><span class="admin-stat-label mono">ВСЕГО ЗАЯВОК</span></div>';
+    html += '<div class="admin-stat"><span class="admin-stat-num">' + preorders + '</span><span class="admin-stat-label mono">ПРЕДЗАКАЗОВ</span></div>';
+
+    var roleKeys = Object.keys(byRole).sort(function(a, b){ return byRole[b] - byRole[a]; });
+    if (roleKeys.length){
+      html += '<div class="admin-breakdown"><h3 class="mono">ПО РОЛЯМ</h3><ul>';
+      roleKeys.forEach(function(r){
+        var color = ROLE_COLORS[r] || "#F4A824";
+        html += "<li><span class=\"admin-swatch\" style=\"background:" + color + "\"></span>" + escapeHtml(capitalize(r)) + ": " + byRole[r] + "</li>";
+      });
+      html += "</ul></div>";
+    }
+
+    var cityKeys = Object.keys(byCity).sort(function(a, b){ return byCity[b] - byCity[a]; });
+    if (cityKeys.length){
+      html += '<div class="admin-breakdown"><h3 class="mono">ПО ГОРОДАМ</h3><ul>';
+      cityKeys.forEach(function(c){
+        html += "<li>" + escapeHtml(capitalize(c)) + ": " + byCity[c] + "</li>";
+      });
+      html += "</ul></div>";
+    }
+
+    summaryEl.innerHTML = html;
+  }
+
+  function renderTable(leads){
+    if (!leads.length){
+      tableBody.innerHTML = '<tr><td colspan="6" class="admin-empty">Заявок пока нет</td></tr>';
+      return;
+    }
+
+    var rows = leads.map(function(l){
+      return "<tr>" +
+        "<td>" + formatDate(l.ts) + "</td>" +
+        "<td>" + escapeHtml(typeLabel(l.type)) + "</td>" +
+        "<td>" + escapeHtml(l.name) + "</td>" +
+        "<td>" + escapeHtml(l.contact) + "</td>" +
+        "<td>" + escapeHtml(l.role ? capitalize(l.role) : "—") + "</td>" +
+        "<td>" + escapeHtml(l.city ? capitalize(l.city) : "—") + "</td>" +
+      "</tr>";
+    }).join("");
+
+    tableBody.innerHTML = rows;
+  }
+
+  function renderDashboard(leads){
+    currentLeads = leads;
+    loginEl.hidden = true;
+    dashEl.hidden = false;
+    renderSummary(leads);
+    renderTable(leads);
+  }
+
+  function csvEscape(v){
+    var s = String(v == null ? "" : v);
+    if (/["\n,;]/.test(s)){
+      s = '"' + s.replace(/"/g, '""') + '"';
+    }
+    return s;
+  }
+
+  function buildCSV(leads){
+    var header = ["Дата", "Тип", "Имя", "Контакт", "Роль", "Город"];
+    var lines = [header.join(",")];
+
+    leads.forEach(function(l){
+      lines.push([
+        formatDate(l.ts),
+        typeLabel(l.type),
+        l.name || "",
+        l.contact || "",
+        l.role ? capitalize(l.role) : "",
+        l.city ? capitalize(l.city) : ""
+      ].map(csvEscape).join(","));
+    });
+
+    return "﻿" + lines.join("\r\n");
+  }
+
+  function exportCSV(){
+    var csv = buildCSV(currentLeads);
+    var blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "banochka-leads-" + Date.now() + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  }
+
+  formEl.addEventListener("submit", function(e){
+    e.preventDefault();
+    var pw = pwInput.value;
+    if (!pw) return;
+    fetchLeads(pw).then(function(leads){
+      if (leads){
+        try { window.sessionStorage.setItem(SS_KEY, pw); } catch (err){}
+        renderDashboard(leads);
+      }
+    });
+  });
+
+  logoutBtn.addEventListener("click", function(){
+    try { window.sessionStorage.removeItem(SS_KEY); } catch (err){}
+    dashEl.hidden = true;
+    loginEl.hidden = false;
+    pwInput.value = "";
+  });
+
+  exportBtn.addEventListener("click", exportCSV);
+
+  // Автовход, если пароль уже сохранён в sessionStorage этой вкладки.
+  (function tryAutoLogin(){
+    var saved;
+    try { saved = window.sessionStorage.getItem(SS_KEY); } catch (err){ saved = null; }
+    if (!saved) return;
+    pwInput.value = saved;
+    fetchLeads(saved).then(function(leads){
+      if (leads) renderDashboard(leads);
+    });
+  })();
+})();
+</script>
+</body>
+</html>
