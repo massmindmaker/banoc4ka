@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Баночка — еда, у которой есть имя</title>
+<meta name="description" content="Кооператив честной еды в банке. Первая варка — по предзаказу.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800;900&family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ===================== ПРЕЛОАДЕР ===================== -->
+<div id="preloader" aria-hidden="true">
+  <div class="preloader-inner">
+    <div class="preloader-mark mono">БАНОЧКА</div>
+    <div class="preloader-line mono" id="preloader-status">ВАРКА №1 · ЗАГРУЗКА 0%</div>
+    <div class="preloader-bar"><div class="preloader-bar-fill" id="preloader-fill"></div></div>
+  </div>
+  <div class="preloader-curtain"></div>
+</div>
+
+<!-- ===================== ШКАЛА ПРОСЛЕЖИВАЕМОСТИ ===================== -->
+<aside id="scale" aria-hidden="true">
+  <div class="scale-track">
+    <span class="scale-dot" id="scale-dot"></span>
+  </div>
+  <ol class="scale-marks">
+    <li class="scale-mark" data-mark="farm"><span class="scale-mark-dot"></span><span class="scale-mark-label mono">ФЕРМА</span></li>
+    <li class="scale-mark" data-mark="workshop"><span class="scale-mark-dot"></span><span class="scale-mark-label mono">ЦЕХ</span></li>
+    <li class="scale-mark" data-mark="lab"><span class="scale-mark-dot"></span><span class="scale-mark-label mono">ЛАБОРАТОРИЯ</span></li>
+    <li class="scale-mark" data-mark="shelf"><span class="scale-mark-dot"></span><span class="scale-mark-label mono">ПОЛКА</span></li>
+  </ol>
+</aside>
+
+<main id="top">
+
+  <!-- ===================== 1. HERO ===================== -->
+  <section class="chapter-wrap chapter-hero-wrap" id="hero-wrap">
+    <div class="chapter-pin chapter-hero">
+      <div class="bg-layer" data-bg="hero-sky" id="hero-bg"></div>
+      <div class="hero-scrim"></div>
+
+      <div class="hero-content">
+        <div class="hud-line mono" id="hero-hud">ВАРКА №1 · ОКТЯБРЬ 2026 · 500 БАНОК</div>
+        <h1 class="hero-title" id="hero-title" aria-label="ЕДА, У КОТОРОЙ ЕСТЬ ИМЯ">ЕДА, У КОТОРОЙ ЕСТЬ ИМЯ</h1>
+        <p class="hero-sub">Кооператив честной еды в банке. Первая варка — по предзаказу.</p>
+        <div class="hero-cta">
+          <a href="#preorder" class="btn btn-primary" data-scroll-to="#preorder">Забронировать банку</a>
+          <a href="#" class="btn btn-ghost">Телеграм-канал</a>
+        </div>
+      </div>
+
+      <div class="scroll-hint" aria-hidden="true">
+        <span class="scroll-hint-arrow"></span>
+        <span class="mono">СКРОЛЛ</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 2. БАНКА ===================== -->
+  <section class="chapter-wrap chapter-jar-wrap" id="jar-wrap">
+    <div class="chapter-pin chapter-jar">
+
+      <!--
+        CONTRACT: контейнер #jar-orbit — временная реализация кросс-фейда трёх
+        статичных ракурсов банки. Будущая замена: <canvas id="jar-orbit-canvas">
+        с покадровой image-sequence (60-120 webp), см. window.BanochkaSequence.initSequence(slot, frames[])
+        в main.js — принимает тот же data-sequence-slot и progress 0..1.
+      -->
+      <div class="jar-orbit" data-sequence-slot="jar-orbit">
+        <div class="jar-frame" data-jar="front" data-bg="jar-front"></div>
+        <div class="jar-frame" data-jar="quarter" data-bg="jar-quarter"></div>
+        <div class="jar-frame" data-jar="side" data-bg="jar-side"></div>
+        <div class="jar-frame jar-frame-macro" data-jar="macro" data-bg="jar-macro"></div>
+      </div>
+
+      <h2 class="chapter-eyebrow mono">ГЛАВА 2 · БАНКА</h2>
+
+      <div class="hud-callout hud-callout-1" data-hud="1">
+        <span class="hud-line-tick"></span>
+        <span class="mono">СТЕКЛО · ТВИСТ-ОФФ 82 ММ</span>
+      </div>
+      <div class="hud-callout hud-callout-2" data-hud="2">
+        <span class="hud-line-tick"></span>
+        <span class="mono">ГОВЯДИНА 78% · БЕЗ СОИ</span>
+      </div>
+      <div class="hud-callout hud-callout-3" data-hud="3">
+        <span class="hud-line-tick"></span>
+        <span class="mono">АВТОКЛАВ 115°C · ГЕРМЕТИЧНЫЙ ШОВ</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 3. ПУТЬ ЕДЫ ===================== -->
+  <section class="chapter-wrap chapter-path-wrap" id="path-wrap">
+    <div class="chapter-pin chapter-path">
+
+      <div class="path-bg-stack">
+        <div class="path-bg" data-stage="farm" data-bg="farm"></div>
+        <div class="path-bg" data-stage="workshop" data-bg="workshop"></div>
+        <div class="path-bg" data-stage="lab" data-bg="lab"></div>
+        <div class="path-bg" data-stage="shelf" data-bg="shelf"></div>
+      </div>
+      <div class="path-scrim"></div>
+
+      <h2 class="path-title">ОТ ФЕРМЫ ДО БАНКИ — 4 ШАГА, ВСЕ ПРОЗРАЧНЫ</h2>
+
+      <div class="path-fact-card" id="path-fact">
+        <div class="path-fact mono active" data-stage="farm">ФЕРМА · эВСД «Меркурий» на каждую партию сырья</div>
+        <div class="path-fact mono" data-stage="workshop">ЦЕХ · формула стерилизации: время × температура × давление</div>
+        <div class="path-fact mono" data-stage="lab">ЛАБОРАТОРИЯ · лабораторный контроль каждой варки</div>
+        <div class="path-fact mono" data-stage="shelf">ПОЛКА · DataMatrix «Честный ЗНАК» на каждой крышке</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 4. МАНИФЕСТ ===================== -->
+  <section class="chapter-wrap chapter-manifesto-wrap dark" id="manifesto-wrap">
+    <div class="chapter-pin chapter-manifesto">
+      <div class="bg-layer" data-bg="manifesto-sky"></div>
+      <div class="manifesto-scrim"></div>
+
+      <div class="manifesto-lines">
+        <p class="manifesto-line" data-line="1">Мы не бренд корпорации. Мы — кооператив.</p>
+        <p class="manifesto-line" data-line="2">Один пайщик — один голос.</p>
+        <p class="manifesto-line" data-line="3">Наш устав запрещает продать «Баночку».</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 5. ПРЕДЗАКАЗ ===================== -->
+  <section class="chapter-section chapter-preorder" id="preorder">
+    <div class="bg-layer" data-bg="burst"></div>
+    <div class="preorder-scrim"></div>
+
+    <div class="preorder-inner">
+      <h2 class="chapter-eyebrow mono">ГЛАВА 5 · ПРЕДЗАКАЗ</h2>
+      <div class="preorder-counter">
+        <span class="mono preorder-counter-label">ЗАБРОНИРОВАНО</span>
+        <span class="preorder-counter-number" id="preorder-count" data-target="137">0</span>
+        <span class="mono preorder-counter-label">ИЗ 500 БАНОК</span>
+      </div>
+      <div class="preorder-progress">
+        <div class="preorder-progress-fill" id="preorder-progress-fill"></div>
+      </div>
+
+      <div class="sku-grid">
+        <article class="sku-card">
+          <h3>Гуляш говяжий</h3>
+          <div class="sku-price">890 ₽</div>
+          <div class="mono sku-tag">цена предзаказа</div>
+        </article>
+        <article class="sku-card">
+          <h3>Тушёнка говяжья</h3>
+          <div class="sku-price">790 ₽</div>
+          <div class="mono sku-tag">цена предзаказа</div>
+        </article>
+        <article class="sku-card">
+          <h3>Тушёнка свиная</h3>
+          <div class="sku-price">690 ₽</div>
+          <div class="mono sku-tag">цена предзаказа</div>
+        </article>
+      </div>
+
+      <p class="disclaimer">Финальные цены — после расчёта первой партии.</p>
+
+      <form class="reserve-form" id="preorder-form" data-storage-key="banochka_preorder" data-range-from="138" data-range-to="160">
+        <fieldset class="role-select" data-role-select>
+          <legend class="mono role-select-label">Кто вы?</legend>
+          <label class="role-chip">
+            <input type="radio" name="role" value="consumer" checked>
+            <span>Потребитель</span>
+          </label>
+          <label class="role-chip">
+            <input type="radio" name="role" value="farmer">
+            <span>Фермер</span>
+          </label>
+          <label class="role-chip">
+            <input type="radio" name="role" value="workshop">
+            <span>Цех</span>
+          </label>
+          <label class="role-chip">
+            <input type="radio" name="role" value="warehouse">
+            <span>Склад</span>
+          </label>
+          <label class="role-chip">
+            <input type="radio" name="role" value="logistics">
+            <span>Логистика</span>
+          </label>
+        </fieldset>
+        <div class="reserve-form-row">
+          <input type="text" name="name" placeholder="Имя" required autocomplete="name">
+          <input type="text" name="contact" placeholder="Telegram или телефон" required autocomplete="tel">
+        </div>
+        <div class="reserve-form-row">
+          <input type="text" name="city" placeholder="Город" required autocomplete="address-level2">
+        </div>
+        <button type="submit" class="btn btn-primary">Забронировать</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===================== 6. МИССИЯ + КАРТА ЗАЯВОК ===================== -->
+  <section class="chapter-section chapter-mission dark" id="mission-wrap">
+    <div class="mission-inner">
+      <h2 class="chapter-eyebrow mono">ГЛАВА 6 · МИССИЯ</h2>
+      <h2 class="mission-title reveal">КООПЕРАТИВ УЖЕ СОБИРАЕТСЯ</h2>
+      <p class="mission-copy reveal">Наша миссия — поддержать тех, кто кормит страну: фермеров и небольшие производства. И дать людям честную еду по справедливой цене — в любые времена.</p>
+      <p class="mission-sub reveal">Мы приглашаем не только едоков. Кооперативу нужны все звенья цепи.</p>
+
+      <div class="invite-grid">
+        <article class="invite-card reveal" data-role="farmer">
+          <h3>ФЕРМЕР</h3>
+          <p>Гарантированный сбыт и кооперативные выплаты</p>
+          <button type="button" class="invite-link mono" data-invite-role="farmer">Присоединиться →</button>
+        </article>
+        <article class="invite-card reveal" data-role="workshop">
+          <h3>ЦЕХ</h3>
+          <p>Загрузка производства заказами первой варки</p>
+          <button type="button" class="invite-link mono" data-invite-role="workshop">Присоединиться →</button>
+        </article>
+        <article class="invite-card reveal" data-role="warehouse">
+          <h3>СКЛАД</h3>
+          <p>Партнёрство по хранению партий</p>
+          <button type="button" class="invite-link mono" data-invite-role="warehouse">Присоединиться →</button>
+        </article>
+        <article class="invite-card reveal" data-role="logistics">
+          <h3>ЛОГИСТИКА</h3>
+          <p>Доставка от цеха до пайщика</p>
+          <button type="button" class="invite-link mono" data-invite-role="logistics">Присоединиться →</button>
+        </article>
+      </div>
+
+      <div class="map-block reveal">
+        <div class="map-stats">
+          <span class="mono map-total" id="map-total-line">НА КАРТЕ: ЗАЯВОК · ГОРОДОВ</span>
+          <ul class="map-legend mono" id="map-legend"></ul>
+        </div>
+
+        <div class="map-svg-wrap">
+          <svg id="russia-map" viewBox="0 0 1000 550" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Карта заявок кооператива по городам России">
+            <path class="map-outline" data-part="mainland" d="M511.9,74.8L513.5,80.5L518.7,77.7L535.3,77.8L548.2,83.4L552.8,87.7L551.4,93.6L545.0,97.0L530.1,103.3L525.8,106.7L532.8,108.3L541.3,111.2L546.4,109.0L549.3,116.3L551.8,113.4L560.9,111.6L579.2,113.5L580.6,118.8L604.5,120.5L604.8,111.8L616.9,113.8L626.0,113.7L635.2,119.7L637.8,127.0L634.5,131.8L641.6,140.8L650.6,145.4L656.1,133.4L665.3,138.6L675.0,135.5L686.0,139.0L690.2,135.8L699.5,137.4L695.4,126.8L703.0,121.9L754.5,129.3L759.3,136.1L774.2,144.8L797.3,142.6L808.6,144.5L813.4,149.2L812.7,157.6L819.7,160.8L827.3,158.5L837.5,158.2L848.2,160.4L859.0,159.1L869.0,169.3L876.0,165.6L871.4,158.3L874.0,153.3L892.2,156.5L904.0,155.8L920.4,161.2L928.4,166.2L928.4,211.6L928.4,211.7L921.0,216.7L913.6,215.9L918.8,221.9L922.2,231.3L924.8,234.4L925.5,239.1L924.0,242.2L913.4,239.7L897.4,248.3L892.4,249.6L883.6,257.6L875.4,264.6L873.3,269.8L865.1,261.9L850.2,270.8L847.6,266.6L842.2,271.5L834.5,269.9L832.7,277.4L825.8,288.5L826.0,293.1L832.5,295.6L831.8,312.2L826.5,312.7L824.0,322.2L826.4,327.1L816.4,332.9L814.5,346.0L806.0,348.7L804.3,360.3L796.0,371.0L793.9,363.1L791.5,346.5L788.3,321.1L791.0,305.3L795.9,298.5L796.2,293.2L805.0,290.6L815.2,276.3L825.0,264.5L835.3,255.4L839.9,239.3L832.9,240.3L829.5,249.7L815.0,262.2L810.4,248.2L795.6,252.1L781.4,271.2L786.1,278.2L773.3,281.2L764.5,282.3L764.9,274.1L756.1,272.4L749.0,278.0L731.6,276.0L712.8,279.4L694.3,301.7L672.5,328.6L681.5,330.0L684.3,337.1L689.8,339.7L693.5,334.0L699.7,334.7L708.0,347.3L708.1,357.0L703.7,368.4L703.2,382.0L700.6,400.2L692.0,416.7L690.1,424.6L682.4,437.9L674.7,451.1L671.0,457.8L663.4,464.5L659.8,464.6L656.2,459.1L648.6,467.4L647.7,471.2L646.9,469.2L646.9,463.4L649.8,463.1L650.6,449.7L649.1,439.9L654.0,435.9L660.9,437.9L664.8,426.8L666.7,414.3L668.9,410.1L671.9,399.9L662.5,403.2L657.5,407.7L648.9,407.7L646.6,397.0L639.8,388.9L629.9,385.2L627.8,374.1L625.8,367.1L623.7,362.1L620.1,350.6L615.1,346.4L606.6,343.0L599.0,343.4L591.9,345.4L587.2,351.1L590.4,353.8L590.4,360.1L587.3,363.7L582.1,375.8L582.2,380.9L574.1,388.1L567.3,383.8L560.5,384.7L557.5,380.9L554.1,379.7L545.7,387.7L538.2,389.6L533.0,392.4L525.8,390.6L520.5,390.7L517.0,384.8L511.5,379.4L505.7,377.9L498.5,379.4L493.1,381.5L485.0,376.7L483.9,368.1L477.2,365.2L472.1,363.9L465.7,359.1L459.8,371.0L462.1,377.7L456.5,385.6L448.3,382.8L442.6,382.3L438.8,377.0L432.8,376.8L427.9,373.3L419.2,378.7L408.3,388.5L402.3,390.5L400.1,391.4L397.1,384.5L389.7,386.0L387.3,381.2L383.3,378.9L380.6,372.4L377.4,370.3L369.2,373.2L361.4,366.7L358.3,372.6L345.6,343.7L338.3,334.9L340.4,331.3L326.1,342.0L320.6,342.7L321.1,336.5L313.8,332.6L307.8,335.4L306.0,323.5L295.8,321.1L290.6,325.8L276.4,330.0L273.6,332.8L252.2,336.8L249.6,340.7L253.7,348.5L248.3,351.5L249.3,354.6L243.9,360.1L253.1,368.0L251.7,373.4L243.7,372.9L242.0,376.3L234.7,370.4L225.7,370.6L219.6,375.4L212.9,370.8L200.3,362.9L191.4,363.2L179.6,375.6L178.9,383.9L173.0,377.3L168.5,389.8L170.2,392.2L166.9,400.8L171.7,408.5L175.9,408.2L179.6,415.9L179.0,421.7L181.9,423.6L179.3,430.3L173.8,432.2L168.1,444.0L173.3,454.8L172.7,462.5L178.9,475.9L175.5,480.5L174.6,483.4L172.0,482.6L168.1,475.7L166.5,475.3L162.9,472.7L161.2,468.0L155.9,465.6L152.4,467.4L151.4,465.3L143.6,459.8L135.3,458.0L130.4,456.0L129.7,457.4L122.5,447.7L116.0,443.4L111.0,436.7L115.2,434.9L119.9,425.4L116.7,420.9L125.1,416.2L125.0,413.7L119.9,415.5L120.0,410.5L123.0,407.3L128.5,406.5L129.4,402.7L128.1,396.4L130.5,390.4L130.4,387.0L122.0,383.3L118.6,383.5L115.1,378.1L110.8,379.9L103.5,375.9L103.6,373.7L101.6,368.7L97.1,368.2L96.6,364.6L98.0,362.3L94.4,355.9L88.5,357.0L86.7,356.4L85.3,359.0L83.1,358.5L81.7,351.2L80.4,347.4L81.5,346.4L86.1,346.8L88.3,344.3L86.7,341.2L82.8,339.2L83.2,337.2L80.9,335.1L77.3,327.6L78.5,324.5L77.9,319.2L72.4,316.5L69.4,317.8L68.6,315.0L62.6,312.1L60.7,305.4L60.2,299.9L57.5,297.2L59.9,293.6L58.3,283.0L62.3,276.4L61.5,274.4L67.9,268.1L62.0,262.7L74.2,248.1L79.5,241.5L81.6,235.7L73.2,227.9L75.5,220.5L70.4,212.0L74.2,202.2L67.6,189.2L72.8,180.6L64.1,173.0L64.9,165.0L69.5,164.0L79.2,159.4L85.1,155.5L94.5,162.3L110.1,165.1L131.7,178.0L136.0,183.4L136.4,191.0L130.1,197.0L120.8,200.0L95.3,191.3L91.1,192.8L100.4,201.1L100.8,206.4L101.2,218.1L108.5,221.6L113.0,224.5L113.7,219.0L110.3,214.1L113.9,209.8L127.7,216.9L132.5,214.1L128.6,205.7L141.9,194.6L147.2,195.2L152.5,199.2L155.8,191.4L151.1,184.6L153.9,177.8L149.7,170.7L165.6,174.3L168.9,180.7L161.7,182.1L161.7,188.5L166.2,192.4L175.0,189.9L176.4,182.6L188.3,177.2L208.2,167.4L212.5,168.0L206.9,174.9L214.0,176.1L218.1,172.2L228.8,171.9L237.2,167.1L243.7,174.0L250.2,166.5L244.2,159.9L247.2,156.1L264.0,159.5L271.9,163.1L292.6,176.1L296.4,170.2L290.6,164.1L290.4,161.7L283.6,160.6L285.5,155.2L282.4,146.3L282.2,142.6L292.8,132.3L296.5,121.9L300.7,119.7L315.8,122.7L317.0,129.1L311.6,138.3L315.2,141.9L317.0,149.9L315.7,165.5L322.0,172.5L319.5,180.2L308.4,196.4L314.9,198.0L317.2,193.9L323.4,191.0L325.0,185.4L329.9,179.9L326.6,173.4L329.2,165.9L323.0,165.0L321.6,158.6L326.2,147.2L318.8,137.9L329.0,130.2L327.7,122.1L330.5,121.8L333.5,128.1L331.2,139.1L337.3,141.2L334.7,133.0L344.3,128.5L356.1,127.9L366.7,134.4L361.6,124.9L361.0,112.8L370.9,110.5L384.7,111.0L397.0,109.5L392.4,103.5L399.0,96.0L405.5,95.7L416.6,90.1L431.7,88.5L433.6,85.4L448.6,84.3L453.2,86.9L466.0,80.8L476.5,81.0L478.1,76.1L483.5,71.3L497.0,66.6L506.8,70.3L499.0,73.1L511.9,74.8Z"></path>
+            <path class="map-outline" data-part="chukotka-east" d="M956.8,193.3L960.7,196.2L959.4,187.9L974.8,189.6L986.0,200.3L980.3,205.2L971.0,206.4L970.9,217.6L968.6,219.9L963.2,219.6L958.9,215.6L951.3,212.3L950.0,207.3L944.2,205.5L937.8,207.0L934.7,203.0L935.9,198.7L929.1,201.4L931.6,206.8L928.4,211.6L928.4,166.2L942.4,174.9L957.3,186.2L956.8,193.3Z"></path>
+            <path class="map-outline" data-part="kaliningrad" d="M31.5,333.1L21.0,333.3L14.0,332.0L15.3,327.0L23.2,323.3L29.1,325.3L31.7,327.1L31.1,330.2L31.5,333.1Z"></path>
+            <path class="map-outline" data-part="sakhalin" d="M721.1,374.0L726.8,394.2L718.4,390.4L714.9,406.9L720.4,418.6L720.3,426.5L716.0,419.7L712.2,428.5L711.2,418.9L711.8,407.8L711.1,395.5L712.5,386.9L712.7,371.6L709.4,360.4L709.9,344.8L715.1,339.6L712.9,334.3L715.4,332.7L716.9,340.2L718.9,351.2L718.7,362.5L721.1,374.0Z"></path>
+            <path class="map-outline" data-part="novaya-zemlya" d="M230.0,146.2L226.6,147.2L208.0,145.7L206.5,140.6L196.2,137.6L195.3,131.4L201.2,129.0L201.0,122.7L212.3,113.0L207.0,111.6L220.7,101.6L219.1,96.4L231.9,90.4L250.7,83.1L269.7,80.9L279.5,76.7L290.6,75.2L294.5,79.7L290.7,83.3L270.5,88.9L253.1,94.4L235.4,105.2L226.9,116.4L217.9,127.3L219.1,136.8L230.0,146.2Z"></path>
+            <g id="map-dots"></g>
+          </svg>
+        </div>
+
+        <p class="map-caption mono">Точки — заявки в лист кооператива до регистрации юрлица. Цвет — роль.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 7. ПАЙЩИКИ + ФУТЕР ===================== -->
+  <section class="chapter-section chapter-members" id="members">
+    <div class="bg-layer" data-bg="members-sky"></div>
+    <div class="members-scrim"></div>
+
+    <div class="members-inner">
+      <div class="members-card">
+        <h2>СТАНЬ ПАЙЩИКОМ</h2>
+        <p>После регистрации кооператива пай = скидка навсегда и голос за новые вкусы.</p>
+        <form class="reserve-form" id="pai-form" data-storage-key="banochka_pai" data-range-from="138" data-range-to="160">
+          <div class="reserve-form-row">
+            <input type="text" name="name" placeholder="Имя" required autocomplete="name">
+            <input type="text" name="contact" placeholder="Telegram или телефон" required autocomplete="tel">
+          </div>
+          <button type="submit" class="btn btn-primary">Встать в лист пайщиков</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="ugc-strip">
+      <a href="#" class="ugc-item" data-bg="ingredients-levitation"></a>
+      <a href="#" class="ugc-item" data-bg="jar-macro"></a>
+      <p class="ugc-caption mono">Сгенерируй своё фото с Баночкой — PinGlass</p>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <p>© Баночка, 2026 · Кооператив честной еды · Контент: Studio 223 × PinGlass</p>
+    <p class="mono footer-hud">ШИРОТА 55.75 · ДОЛГОТА 37.61 · ВЫСОТА ПОЛКИ 1.4 М</p>
+  </footer>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
