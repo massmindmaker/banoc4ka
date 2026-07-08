@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Стратегия запуска — Баночка</title>
+<meta name="description" content="Как «Баночка» превращает контент в кооператив — по этапам. Схема движения от PinGlass до фермеров, этапы запуска и цели на 90 дней.">
+<link rel="icon" href="data:,">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800;900&family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+<style>
+  /* ==========================================================================
+     СТРАНИЦА «СТРАТЕГИЯ» — точечные стили поверх styles.css.
+     Без GSAP: только CSS-анимации (fade-up при загрузке + пульс стрелок схемы).
+     ========================================================================== */
+
+  .strategy-topbar{
+    padding:20px 24px;
+  }
+
+  .strategy-back{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    letter-spacing:0.04em;
+    color:var(--ink);
+    opacity:0.75;
+    transition:color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .strategy-back:hover{
+    color:var(--sunset);
+    opacity:1;
+    transform:translateX(-3px);
+  }
+
+  /* ---------- ХЕРО ---------- */
+  .strategy-hero{
+    max-width:900px;
+    margin:0 auto;
+    padding:48px 24px 96px;
+    text-align:center;
+  }
+
+  .strategy-hero h1{
+    font-size:clamp(34px,6.5vw,64px);
+    font-weight:800;
+    line-height:1.08;
+    margin-bottom:20px;
+    animation:fadeUp 0.7s ease both;
+  }
+
+  .strategy-sub{
+    font-size:clamp(16px,2.2vw,20px);
+    color:var(--ink);
+    opacity:0.75;
+    max-width:52ch;
+    margin:0 auto;
+    animation:fadeUp 0.7s ease 0.1s both;
+  }
+
+  /* ---------- ОБЩИЕ СЕКЦИИ ---------- */
+  .strategy-section{
+    padding:96px 24px;
+  }
+
+  .strategy-section-inner{
+    max-width:1100px;
+    margin:0 auto;
+  }
+
+  .strategy-dark{
+    background:linear-gradient(180deg, var(--sky-2) 0%, var(--ink) 100%);
+    color:var(--cream);
+  }
+
+  .strategy-eyebrow{
+    font-size:12px;
+    letter-spacing:0.14em;
+    color:var(--amber);
+    text-align:center;
+    margin-bottom:44px;
+  }
+
+  .strategy-h2{
+    font-size:clamp(24px,3.4vw,36px);
+    font-weight:700;
+    text-align:center;
+    margin-bottom:44px;
+  }
+
+  /* ---------- СХЕМА ДВИЖЕНИЯ ---------- */
+  .scheme-chain{
+    list-style:none;
+    margin:0 auto;
+    padding:0;
+    max-width:1100px;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:stretch;
+    justify-content:center;
+    row-gap:40px;
+  }
+
+  .scheme-block{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    gap:6px;
+    width:142px;
+    min-height:116px;
+    padding:16px 10px;
+    margin-right:22px;
+    border-radius:16px;
+    background:rgba(250,246,239,0.06);
+    border:1px solid rgba(250,246,239,0.18);
+    animation:fadeUp 0.6s ease both;
+  }
+
+  .scheme-block:nth-of-type(1){ animation-delay:0.05s; }
+  .scheme-block:nth-of-type(2){ animation-delay:0.15s; }
+  .scheme-block:nth-of-type(3){ animation-delay:0.25s; }
+  .scheme-block:nth-of-type(4){ animation-delay:0.35s; }
+  .scheme-block:nth-of-type(5){ animation-delay:0.45s; }
+  .scheme-block:nth-of-type(6){ animation-delay:0.55s; }
+
+  .scheme-block:last-child{ margin-right:0; }
+
+  .scheme-block-title{
+    font-family:var(--font-head);
+    font-weight:600;
+    font-size:14.5px;
+    line-height:1.28;
+  }
+
+  .scheme-block-sub{
+    font-size:10.5px;
+    color:var(--amber);
+    opacity:0.9;
+    letter-spacing:0.03em;
+    line-height:1.3;
+  }
+
+  .scheme-block:not(:last-child)::after{
+    content:"→";
+    position:absolute;
+    right:-27px;
+    top:50%;
+    transform:translateY(-50%);
+    color:var(--amber);
+    font-size:18px;
+    animation:pulseArrow 2.2s ease-in-out infinite;
+    animation-delay:inherit;
+  }
+
+  .scheme-caption{
+    max-width:62ch;
+    margin:52px auto 0;
+    text-align:center;
+    font-size:15px;
+    line-height:1.6;
+    color:rgba(250,246,239,0.85);
+  }
+
+  @media (max-width:767px){
+    .scheme-chain{ flex-direction:column; row-gap:34px; align-items:center; }
+    .scheme-block{ width:100%; max-width:280px; margin-right:0; }
+    .scheme-block:not(:last-child)::after{
+      content:"↓";
+      right:auto; left:50%;
+      top:auto; bottom:-26px;
+      transform:translateX(-50%);
+    }
+  }
+
+  /* ---------- ЭТАПЫ ---------- */
+  .stage-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    align-items:start;
+    gap:22px;
+  }
+
+  .stage-card{
+    background:#fff;
+    border:1px solid rgba(20,33,46,0.08);
+    border-top:3px solid rgba(20,33,46,0.08);
+    border-radius:18px;
+    padding:28px 26px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    transition:transform 0.25s ease, box-shadow 0.25s ease;
+    animation:fadeUp 0.6s ease both;
+  }
+
+  .stage-card:first-child{ border-top-color:var(--amber); }
+
+  .stage-grid .stage-card:nth-child(1){ animation-delay:0.05s; }
+  .stage-grid .stage-card:nth-child(2){ animation-delay:0.1s; }
+  .stage-grid .stage-card:nth-child(3){ animation-delay:0.15s; }
+  .stage-grid .stage-card:nth-child(4){ animation-delay:0.2s; }
+  .stage-grid .stage-card:nth-child(5){ animation-delay:0.25s; }
+  .stage-grid .stage-card:nth-child(6){ animation-delay:0.3s; }
+
+  .stage-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 14px 34px rgba(20,33,46,0.1);
+  }
+
+  .stage-num{
+    font-size:13px;
+    color:var(--sunset);
+    letter-spacing:0.06em;
+  }
+
+  .stage-card h3{
+    font-family:var(--font-head);
+    font-size:19px;
+    font-weight:700;
+    line-height:1.28;
+  }
+
+  .stage-card p{
+    font-size:15px;
+    line-height:1.55;
+    color:var(--ink);
+    opacity:0.82;
+    margin:0;
+    overflow-wrap:anywhere;
+  }
+
+  .stage-track{
+    font-size:13.5px;
+    line-height:1.55;
+    margin:0;
+    padding:10px 14px;
+    border-radius:10px;
+    background:rgba(20,33,46,0.04);
+    border-left:3px solid var(--sky-1);
+  }
+
+  .stage-track--points{ border-left-color:var(--amber); }
+
+  .stage-track strong{ color:var(--sky-2); }
+
+  .fine-print{
+    font-size:11.5px;
+    line-height:1.55;
+    opacity:0.55;
+    margin:2px 0 0;
+    padding-top:12px;
+    border-top:1px dashed rgba(20,33,46,0.16);
+  }
+
+  /* ---------- КАНАЛЫ ---------- */
+  .strategy-channels p{
+    max-width:70ch;
+    margin:0 auto 14px;
+    text-align:center;
+    font-size:16px;
+    line-height:1.65;
+  }
+
+  .strategy-channels .fine-print{
+    max-width:70ch;
+    margin:18px auto 0;
+    text-align:center;
+    border-top:none;
+    padding-top:0;
+  }
+
+  /* ---------- ЦЕЛИ НА 90 ДНЕЙ ---------- */
+  .goals-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:32px;
+    text-align:center;
+  }
+
+  .goal-item{
+    animation:fadeUp 0.6s ease both;
+  }
+
+  .goals-grid .goal-item:nth-child(1){ animation-delay:0.05s; }
+  .goals-grid .goal-item:nth-child(2){ animation-delay:0.15s; }
+  .goals-grid .goal-item:nth-child(3){ animation-delay:0.25s; }
+
+  .goal-number{
+    font-size:clamp(40px,7vw,72px);
+    font-weight:700;
+    color:var(--amber);
+    line-height:1;
+    margin-bottom:12px;
+  }
+
+  .goal-label{
+    font-size:13px;
+    letter-spacing:0.02em;
+    color:rgba(250,246,239,0.82);
+  }
+
+  /* ---------- CTA ---------- */
+  .strategy-cta{
+    text-align:center;
+    padding:96px 24px 120px;
+  }
+
+  .strategy-cta .btn{
+    padding:16px 40px;
+    font-size:16px;
+  }
+
+  /* ---------- АНИМАЦИИ ---------- */
+  @keyframes fadeUp{
+    from{ opacity:0; transform:translateY(16px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  @keyframes pulseArrow{
+    0%,100%{ opacity:0.45; }
+    50%{ opacity:1; }
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .strategy-hero h1,
+    .strategy-sub,
+    .scheme-block,
+    .stage-card,
+    .goal-item{
+      animation:none !important;
+      opacity:1 !important;
+      transform:none !important;
+    }
+    .scheme-block::after{ animation:none !important; opacity:0.85 !important; }
+  }
+
+  @media (max-width:767px){
+    .strategy-section{ padding:64px 20px; }
+    .strategy-hero{ padding:36px 20px 72px; }
+    .strategy-eyebrow{ margin-bottom:32px; }
+    .strategy-h2{ margin-bottom:32px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="strategy-topbar">
+  <a href="index.html" class="strategy-back mono">← На главную</a>
+</header>
+
+<main>
+
+  <!-- ===================== ХЕРО ===================== -->
+  <section class="strategy-hero">
+    <h1>Стратегия запуска</h1>
+    <p class="strategy-sub">Как «Баночка» превращает контент в кооператив — по этапам.</p>
+  </section>
+
+  <!-- ===================== СХЕМА ДВИЖЕНИЯ ===================== -->
+  <section class="strategy-section strategy-dark">
+    <div class="strategy-section-inner">
+      <p class="strategy-eyebrow mono">СХЕМА ДВИЖЕНИЯ</p>
+
+      <ol class="scheme-chain">
+        <li class="scheme-block">
+          <span class="scheme-block-title">PinGlass</span>
+          <span class="scheme-block-sub mono">генерация фото/видео</span>
+        </li>
+        <li class="scheme-block">
+          <span class="scheme-block-title">Соцсети</span>
+          <span class="scheme-block-sub mono">TG · VK · OK · YouTube</span>
+        </li>
+        <li class="scheme-block">
+          <span class="scheme-block-title">Telegram-канал «Баночки»</span>
+        </li>
+        <li class="scheme-block">
+          <span class="scheme-block-title">Сайт и предзаказы</span>
+        </li>
+        <li class="scheme-block">
+          <span class="scheme-block-title">Кооператив</span>
+        </li>
+        <li class="scheme-block">
+          <span class="scheme-block-title">Фермеры и производства</span>
+        </li>
+      </ol>
+
+      <p class="scheme-caption">Каждый виток приводит новых людей — контент рекламирует банку, банка финансирует фермеров, фермеры дают продукт для нового контента.</p>
+    </div>
+  </section>
+
+  <!-- ===================== ЭТАПЫ ===================== -->
+  <section class="strategy-section strategy-stages">
+    <div class="strategy-section-inner">
+      <h2 class="strategy-h2">Этапы</h2>
+
+      <div class="stage-grid">
+        <article class="stage-card">
+          <div class="stage-num mono">0</div>
+          <h3>Сайт-инструмент — готово</h3>
+          <p>banoc4ka.vercel.app: сцены-главы, форма с ролями (потребитель, фермер, цех, склад, логистика), живая карта заявок, админ-панель. Каждая заявка сохраняется и видна на карте.</p>
+        </article>
+
+        <article class="stage-card">
+          <div class="stage-num mono">1</div>
+          <h3>Контент-фабрика</h3>
+          <p>AI-агенты генерируют фирменные фото и видео с Баночкой через API PinGlass и публикуют их в Telegram, VK, OK и YouTube Shorts. Один персонаж, одна банка, одно небо — узнаваемый код бренда в каждом кадре. Все ролики ведут в Telegram-канал и на сайт.</p>
+        </article>
+
+        <article class="stage-card">
+          <div class="stage-num mono">2</div>
+          <h3>Реферальный флайвил</h3>
+          <p>Любой пользователь PinGlass генерирует своё фото с Баночкой и публикует его со своей реферальной ссылкой. Новые люди по ссылке: вступают в Telegram-канал, генерируют свои фото — и тоже становятся рекламой. Реферер выбирает один из двух треков вознаграждения:</p>
+          <p class="stage-track"><strong>ДЕНЬГИ:</strong> стандартная партнёрская программа PinGlass — процент с покупок приведённых пользователей.</p>
+          <p class="stage-track stage-track--points"><strong>БАЛЛЫ:</strong> кооперативные баллы с повышающим коэффициентом ×2 (1 балл = 1 ₽) в счёт будущего пая; при этом денежная доля реферера направляется в фонд развития кооператива и после его регистрации распределяется фермерам и производствам.</p>
+          <p class="fine-print">Баллы — обязательство сервиса о зачёте, конвертируются во вступительный и паевой взнос после регистрации кооператива. Это не приём вкладов и не привлечение инвестиций.</p>
+        </article>
+
+        <article class="stage-card">
+          <div class="stage-num mono">3</div>
+          <h3>Первая варка</h3>
+          <p>500 банок по предзаказу. Контрактное производство с автоклавом и ХАССП, каждая партия — с ветеринарными документами «Меркурий» и маркировкой «Честный ЗНАК». Предоплата открывается на сайте.</p>
+        </article>
+
+        <article class="stage-card">
+          <div class="stage-num mono">4</div>
+          <h3>Кооператив</h3>
+          <p>При 5–10 фермерах с договорами поставки регистрируем сельхозкооператив. Покупатели-пайщики входят ассоциированными членами, накопленные баллы конвертируются в паи. Один пайщик — один голос.</p>
+        </article>
+
+        <article class="stage-card">
+          <div class="stage-num mono">5</div>
+          <h3>Свой цех</h3>
+          <p>После 12 месяцев работы кооператива с 10+ членами — заявка на грант развития материально-технической базы (до 70 млн ₽, не более 60% проекта). Собственный цех, рабочие места, рост линейки.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== КАНАЛЫ ===================== -->
+  <section class="strategy-section strategy-channels">
+    <div class="strategy-section-inner">
+      <h2 class="strategy-h2">Каналы</h2>
+      <p>Основные: Telegram, VK, Одноклассники, YouTube Shorts. Вторичные: Instagram* для зарубежной аудитории. Продвижение — контентом и рефералками, закупка рекламы — только после проверки юнит-экономики первой варки.</p>
+      <p class="fine-print">*Meta признана экстремистской организацией и запрещена в РФ.</p>
+    </div>
+  </section>
+
+  <!-- ===================== ЦЕЛИ НА 90 ДНЕЙ ===================== -->
+  <section class="strategy-section strategy-dark strategy-goals">
+    <div class="strategy-section-inner">
+      <h2 class="strategy-h2">Цели на 90 дней</h2>
+
+      <div class="goals-grid">
+        <div class="goal-item">
+          <div class="goal-number mono">10&nbsp;000</div>
+          <div class="goal-label mono">— подписчиков Telegram-канала</div>
+        </div>
+        <div class="goal-item">
+          <div class="goal-number mono">500</div>
+          <div class="goal-label mono">— предоплаченных банок первой варки</div>
+        </div>
+        <div class="goal-item">
+          <div class="goal-number mono">50</div>
+          <div class="goal-label mono">— фермеров, цехов и складов в листе кооператива</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CTA ===================== -->
+  <section class="strategy-cta">
+    <a href="index.html#preorder" class="btn btn-primary">Оставить заявку</a>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>© Баночка, 2026 · Кооператив честной еды · <a href="index.html" class="footer-link">На главную</a></p>
+</footer>
+
+</body>
+</html>

@@ -980,6 +980,18 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
   font-size:11px;
 }
 
+.footer-link{
+  text-decoration:underline;
+  text-underline-offset:3px;
+  opacity:0.85;
+  transition:color 0.2s ease, opacity 0.2s ease;
+}
+
+.footer-link:hover{
+  color:var(--amber);
+  opacity:1;
+}
+
 /* ==========================================================================
    БЕЗОПАСНАЯ ПРАВАЯ ЗОНА ПОД ШКАЛУ ПРОСЛЕЖИВАЕМОСТИ (desktop ≥768px)
    Шкала #scale зафиксирована справа (right:36px, собственная ширина ~117px,
