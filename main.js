@@ -6,18 +6,19 @@
   "use strict";
 
   var ASSET_NAMES = [
-    "hero-sky","jar-macro",
+    "hero-sky",
     "farm","workshop","lab","shelf",
-    "manifesto-sky","burst","members-sky","ingredients-levitation","sky-panorama"
+    "burst"
   ];
 
-  // Раскадровка v4: логическое имя ассета (см. data-bg в index.html) -> реальный
+  // Раскадровка v5: логическое имя ассета (см. data-bg в index.html) -> реальный
   // файл в assets/. hero-sky теперь — мастер-кадр B (статичный фолбэк/OG для
   // видео-hero, см. setupHeroVideo()). jar-front/quarter/side удалены v3→v4:
   // глава 2 больше не грузит их — заменены на canvas-скраб 72 кадров
   // assets/jar-alpha/ (JarCanvas), которые прелоадер НЕ ждёт (грузятся
-  // прогрессивно после старта страницы). jar-macro остаётся — используется в
-  // UGC-полосе главы 7 (data-bg="jar-macro").
+  // прогрессивно после старта страницы). manifesto-sky/members-sky/
+  // ingredients-levitation/jar-macro/sky-panorama удалены v4→v5 вместе с
+  // фоновыми фото манифеста/пайщиков, UGC-полосой и пролётом банки.
   //
   // Перф-редизайн (вес до load): у каждого фона теперь есть .avif и .webp
   // рядом с оригиналом (см. ASSET_ORIGINAL_EXT). Загрузка пробует по цепочке
@@ -26,30 +27,20 @@
   // конкретного файла в конкретном браузере, а не общую поддержку формата.
   var ASSET_BASENAMES = {
     "hero-sky":              "hero-soft-B",
-    "jar-macro":             "SB-03",
     "farm":                  "SB-04",
     "workshop":              "SB-05",
     "lab":                   "lab",
     "shelf":                 "SB-07",
-    "manifesto-sky":         "manifesto-sky",
-    "burst":                 "SB-09",
-    "members-sky":           "SB-11",
-    "ingredients-levitation":"ingredients-levitation",
-    "sky-panorama":          "sky-panorama"
+    "burst":                 "SB-09"
   };
 
   var ASSET_ORIGINAL_EXT = {
     "hero-sky":              "png",
-    "jar-macro":             "png",
     "farm":                  "png",
     "workshop":              "png",
     "lab":                   "jpg",
     "shelf":                 "png",
-    "manifesto-sky":         "jpg",
-    "burst":                 "png",
-    "members-sky":           "png",
-    "ingredients-levitation":"jpg",
-    "sky-panorama":          "jpg"
+    "burst":                 "png"
   };
 
   var ASSET_STATUS = {};   // name -> true (loaded) | false (error)
@@ -528,39 +519,6 @@
       }
     });
 
-    /* ---------- Пролёт банки: фирменный момент между главой 2 и главой 5.
-       Только десктоп (≥768px), только без reduced-motion (мы уже внутри
-       не-reduced ветки). Использует последний кадр (jar-a-0072.webp) как <img>,
-       летит по фиксированной позиции от центра экрана к счётчику предзаказа. ---------- */
-    if (!isMobileViewport){
-      var jarFly = document.getElementById("jar-fly");
-      if (jarFly){
-        jarFly.style.display = "block";
-        gsap.set(jarFly, { xPercent:-50, yPercent:-50, opacity:0 });
-
-        ScrollTrigger.create({
-          trigger: "#jar-wrap",
-          start: "bottom top",
-          endTrigger: "#preorder",
-          end: "top center",
-          scrub: true,
-          onUpdate: function(self){
-            var p = self.progress;
-            var vw = window.innerWidth, vh = window.innerHeight;
-
-            var x = vw * 0.5;
-            var y = lerp(vh * 0.5, vh * 0.34, p);
-            var scale = lerp(1, 0.22, p);
-            var rotation = lerp(0, -18, p);
-            var opacity = p < 0.72 ? 1 : clamp01(1 - (p - 0.72) / 0.28);
-
-            gsap.set(jarFly, { x:x, y:y, scale:scale, rotation:rotation, opacity:opacity });
-          },
-          onLeaveBack: function(){ gsap.set(jarFly, { opacity:0 }); }
-        });
-      }
-    }
-
     function setHud(el, active){
       if (!el) return;
       gsap.to(el, { opacity: active ? 1 : 0, y: active ? 0 : 12, duration:0.3, ease:"power1.out", overwrite:"auto" });
@@ -685,7 +643,6 @@
 
   function clamp01(v){ return Math.max(0, Math.min(1, v)); }
   function smooth01(v){ v = clamp01(v); return v * v * (3 - 2 * v); }
-  function lerp(a, b, t){ return a + (b - a) * t; }
 
   /* ---------- Счётчик предзаказа ---------- */
   function initCounters(){
