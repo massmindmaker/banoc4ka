@@ -7,7 +7,7 @@
    не видят — CSS position:absolute;left:-9999px) и rate-limit 5 заявок/10 мин
    на IP (состояние в Vercel Blob, ip хранится только в виде sha256-хеша).
    ========================================================================== */
-const { put, head } = require("@vercel/blob");
+const { put, get } = require("@vercel/blob");
 const crypto = require("crypto");
 
 const ALLOWED_TYPES = ["preorder", "pai"];
@@ -37,20 +37,25 @@ function hashIp(ip) {
 // (ratelimit/<sha256(ip)>.json), т.к. serverless-функции не гарантируют
 // разделяемую память между вызовами (каждый вызов может попасть в новый
 // контейнер). Возвращает true, если заявку МОЖНО принять.
+//
+// ВАЖНО: читаем через get(..., { useCache:false }), а не fetch(url) на
+// публичный URL блоба — публичные blob-URL отдаются через CDN с кэшем от
+// 1 минуты, и при overwrite того же pathname обычные fetch(url) какое-то
+// время видят старое содержимое (проверено эмпирически: 3 записи подряд
+// давали 3 одинаковых "старых" прочтения). get(useCache:false) всегда
+// бьёт в origin storage и видит актуальные данные.
 async function checkAndRecordRateLimit(ip) {
   const pathname = "ratelimit/" + hashIp(ip) + ".json";
   const now = Date.now();
 
   let timestamps = [];
   try {
-    const info = await head(pathname);
-    if (info && info.url) {
-      const resp = await fetch(info.url);
-      if (resp.ok) {
-        const data = await resp.json();
-        if (data && Array.isArray(data.timestamps)) {
-          timestamps = data.timestamps;
-        }
+    const result = await get(pathname, { access: "public", useCache: false });
+    if (result && result.statusCode === 200 && result.stream) {
+      const text = await new Response(result.stream).text();
+      const data = JSON.parse(text);
+      if (data && Array.isArray(data.timestamps)) {
+        timestamps = data.timestamps;
       }
     }
   } catch (err) {
@@ -62,15 +67,18 @@ async function checkAndRecordRateLimit(ip) {
     return typeof ts === "number" && now - ts < RATE_LIMIT_WINDOW_MS;
   });
 
+  const putOpts = {
+    access: "public",
+    addRandomSuffix: false,
+    allowOverwrite: true,
+    contentType: "application/json",
+    cacheControlMaxAge: 60 // минимум, допустимый SDK; чтение всё равно идёт мимо кэша
+  };
+
   if (recent.length >= RATE_LIMIT_MAX) {
     // Всё равно сохраняем обрезанный список, чтобы файл не рос бесконечно.
     try {
-      await put(pathname, JSON.stringify({ timestamps: recent }), {
-        access: "public",
-        addRandomSuffix: false,
-        allowOverwrite: true,
-        contentType: "application/json"
-      });
+      await put(pathname, JSON.stringify({ timestamps: recent }), putOpts);
     } catch (err) {
       // Не критично — просто не обновили таймстемпы, лимит всё равно сработал.
     }
@@ -79,12 +87,7 @@ async function checkAndRecordRateLimit(ip) {
 
   recent.push(now);
   try {
-    await put(pathname, JSON.stringify({ timestamps: recent }), {
-      access: "public",
-      addRandomSuffix: false,
-      allowOverwrite: true,
-      contentType: "application/json"
-    });
+    await put(pathname, JSON.stringify({ timestamps: recent }), putOpts);
   } catch (err) {
     // Если запись лимита не удалась — не блокируем легитимную заявку из-за инфры.
   }
