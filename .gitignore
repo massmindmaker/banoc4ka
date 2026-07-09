@@ -4,3 +4,4 @@ server.log
 server*.log
 shots/
 node_modules/
+.playwright-cli/
