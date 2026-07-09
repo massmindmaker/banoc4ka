@@ -9,7 +9,7 @@
 
 <meta property="og:title" content="Баночка — банка, за которой стоят люди">
 <meta property="og:description" content="Кооператив честной еды. Фермеры, цех и покупатели — одна команда. Первая варка — по предзаказу.">
-<meta property="og:image" content="/assets/SB-01-nb2.png">
+<meta property="og:image" content="/assets/hero-soft-B.png">
 <meta property="og:url" content="https://banoc4ka.vercel.app/">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
@@ -51,6 +51,7 @@
   <section class="chapter-wrap chapter-hero-wrap" id="hero-wrap">
     <div class="chapter-pin chapter-hero">
       <div class="bg-layer" data-bg="hero-sky" id="hero-bg"></div>
+      <video id="hero-video" class="hero-video" muted loop playsinline preload="metadata" aria-hidden="true"></video>
       <div class="hero-scrim"></div>
 
       <div class="hero-content">
@@ -75,16 +76,11 @@
     <div class="chapter-pin chapter-jar">
 
       <!--
-        CONTRACT: контейнер #jar-orbit — временная реализация кросс-фейда трёх
-        статичных ракурсов банки. Будущая замена: <canvas id="jar-orbit-canvas">
-        с покадровой image-sequence (60-120 webp), см. window.BanochkaSequence.initSequence(slot, frames[])
-        в main.js — принимает тот же data-sequence-slot и progress 0..1.
+        Canvas-скраб: 72 кадра вращения банки (assets/jar-alpha/), прогресс пина
+        0→1 маппится на кадр 1→72. Прелоад прогрессивный, см. JarCanvas в main.js.
       -->
       <div class="jar-orbit" data-sequence-slot="jar-orbit">
-        <div class="jar-frame" data-jar="front" data-bg="jar-front"></div>
-        <div class="jar-frame" data-jar="quarter" data-bg="jar-quarter"></div>
-        <div class="jar-frame" data-jar="side" data-bg="jar-side"></div>
-        <div class="jar-frame jar-frame-macro" data-jar="macro" data-bg="jar-macro"></div>
+        <canvas id="jar-canvas" class="jar-canvas" aria-hidden="true"></canvas>
       </div>
 
       <h2 class="chapter-eyebrow mono">ГЛАВА 2 · БАНКА</h2>
@@ -103,6 +99,10 @@
       </div>
     </div>
   </section>
+
+  <!-- Пролёт банки: фирменный момент между главой 2 и главой 5 (предзаказ).
+       Скрыт по умолчанию (CSS), включается JS только на десктопе без reduced-motion. -->
+  <img id="jar-fly" class="jar-fly" src="assets/jar-alpha/jar-a-0072.webp" alt="" aria-hidden="true">
 
   <!-- ===================== 3. ПУТЬ ЕДЫ ===================== -->
   <section class="chapter-wrap chapter-path-wrap" id="path-wrap">

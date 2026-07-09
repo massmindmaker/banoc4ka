@@ -6,19 +6,21 @@
   "use strict";
 
   var ASSET_NAMES = [
-    "hero-sky","jar-front","jar-quarter","jar-side","jar-macro",
+    "hero-sky","jar-macro",
     "farm","workshop","lab","shelf",
     "manifesto-sky","burst","members-sky","ingredients-levitation","sky-panorama"
   ];
 
-  // Раскадровка v3: логическое имя ассета (см. data-bg в index.html) -> реальный
+  // Раскадровка v4: логическое имя ассета (см. data-bg в index.html) -> реальный
   // файл в assets/. lab, manifesto-sky, ingredients-levitation, sky-panorama
   // не менялись (глава 4 ждёт мужского персонажа; UGC-полоса не трогается) — остаются старыми jpg.
+  // hero-sky теперь — мастер-кадр B (статичный фолбэк/OG для видео-hero, см. setupHeroVideo()).
+  // jar-front/quarter/side удалены v3→v4: глава 2 больше не грузит их — заменены
+  // на canvas-скраб 72 кадров assets/jar-alpha/ (JarCanvas), которые прелоадер
+  // НЕ ждёт (грузятся прогрессивно после старта страницы). jar-macro остаётся —
+  // используется в UGC-полосе главы 7 (data-bg="jar-macro").
   var ASSET_FILES = {
-    "hero-sky":              "SB-01-nb2.png",
-    "jar-front":             "SB-02a.png",
-    "jar-quarter":           "SB-02b.png",
-    "jar-side":              "SB-02c.png",
+    "hero-sky":              "hero-soft-B.png",
     "jar-macro":             "SB-03.png",
     "farm":                  "SB-04.png",
     "workshop":              "SB-05.png",
@@ -122,12 +124,210 @@
   }
 
   /* ================================================================
+     HERO-ВИДЕО: подставляет 16:9/9:16 луп по matchMedia, фолбэк на постер
+     при autoplay-блокировке/ошибке. НЕ участвует в прелоадере (грузится
+     после закрытия прелоадера, чтобы не тормозить первый показ страницы).
+     ================================================================ */
+  function setupHeroVideo(reducedMotion){
+    var video = document.getElementById("hero-video");
+    if (!video) return;
+
+    if (reducedMotion){
+      // По ТЗ: видео не грузим вообще — остаётся только постер (bg-layer/hero-sky).
+      video.remove();
+      return;
+    }
+
+    var isMobile = window.matchMedia("(max-width:767px)").matches;
+    var src = isMobile ? "assets/hero-loop-9x16.mp4" : "assets/hero-loop-16x9.mp4";
+    var poster = isMobile ? "assets/hero-poster-9x16.jpg" : "assets/hero-poster-16x9.jpg";
+
+    var fellBack = false;
+    function fallbackToPoster(){
+      if (fellBack) return;
+      fellBack = true;
+      video.classList.add("hero-video-hidden");
+    }
+
+    video.setAttribute("poster", poster);
+    video.addEventListener("error", fallbackToPoster);
+    video.src = src;
+    video.load();
+
+    var playPromise;
+    try { playPromise = video.play(); } catch (err) { playPromise = null; }
+    if (playPromise && typeof playPromise.catch === "function"){
+      playPromise.catch(function(){ /* autoplay заблокирован — решит проверка ниже */ });
+    }
+
+    // Частый случай: autoplay тихо блокируется без события error — проверяем
+    // фактическое состояние воспроизведения через 1.5с и откатываемся на постер.
+    setTimeout(function(){
+      if (video.paused) fallbackToPoster();
+    }, 1500);
+  }
+
+  /* ================================================================
+     ГЛАВА 2 — JAR CANVAS: canvas-скраб 72 (36 на мобиле) кадров вращения банки.
+     Прелоад прогрессивный: кадр 1 — сразу, остальные — пачками по 6 через
+     requestIdleCallback, чтобы не блокировать прелоадер и не грузить разом
+     весь трафик. drawFrame всегда рисует ближайший уже загруженный кадр.
+     ================================================================ */
+  var JarCanvas = (function(){
+    var canvas, ctx, images, loadedFlags, frameIndices, totalFrames;
+    var naturalW = 560, naturalH = 560;
+    var lastDrawnIndex = -1;
+    var resizeHandlerBound = false;
+
+    function pad4(n){ return ("0000" + n).slice(-4); }
+    function framePath(n){ return "assets/jar-alpha/jar-a-" + pad4(n) + ".webp"; }
+
+    function init(canvasEl, opts){
+      canvas = canvasEl;
+      if (!canvas) return;
+      ctx = canvas.getContext("2d");
+
+      var step = (opts && opts.mobile) ? 2 : 1;
+      frameIndices = [];
+      for (var i = 1; i <= 72; i += step) frameIndices.push(i);
+      totalFrames = frameIndices.length;
+      images = new Array(totalFrames);
+      loadedFlags = new Array(totalFrames);
+      lastDrawnIndex = -1;
+
+      resizeCanvas();
+      if (!resizeHandlerBound){
+        window.addEventListener("resize", debounce(resizeCanvas, 150));
+        resizeHandlerBound = true;
+      }
+
+      var onlyFirst = !!(opts && opts.onlyFirst);
+      loadFrame(0, function(){
+        drawFrame(0);
+        if (!onlyFirst) loadRestProgressively();
+      });
+    }
+
+    function loadFrame(idx, cb){
+      if (idx < 0 || idx >= totalFrames){ if (cb) cb(); return; }
+      if (loadedFlags[idx]){ if (cb) cb(); return; }
+      var img = new Image();
+      img.onload = function(){
+        loadedFlags[idx] = true;
+        images[idx] = img;
+        if (idx === 0){
+          naturalW = img.naturalWidth || naturalW;
+          naturalH = img.naturalHeight || naturalH;
+          resizeCanvas();
+        }
+        if (cb) cb();
+      };
+      img.onerror = function(){ if (cb) cb(); };
+      img.src = framePath(frameIndices[idx]);
+    }
+
+    function loadRestProgressively(){
+      var idx = 1;
+      function runBatch(){
+        var loadedInBatch = 0;
+        function next(){
+          if (idx >= totalFrames) return;
+          var current = idx++;
+          loadFrame(current, function(){
+            loadedInBatch++;
+            if (loadedInBatch < 6 && idx < totalFrames) next();
+          });
+        }
+        next();
+        if (idx < totalFrames) scheduleIdle(runBatch);
+      }
+      scheduleIdle(runBatch);
+    }
+
+    function scheduleIdle(fn){
+      if (window.requestIdleCallback){
+        requestIdleCallback(fn, { timeout: 500 });
+      } else {
+        setTimeout(fn, 120);
+      }
+    }
+
+    function nearestLoadedIndex(idx){
+      if (idx < 0 || idx >= totalFrames) return -1;
+      if (loadedFlags[idx]) return idx;
+      for (var d = 1; d < totalFrames; d++){
+        if (idx - d >= 0 && loadedFlags[idx - d]) return idx - d;
+        if (idx + d < totalFrames && loadedFlags[idx + d]) return idx + d;
+      }
+      return -1;
+    }
+
+    function resizeCanvas(){
+      if (!canvas || !canvas.parentElement) return;
+      var rect = canvas.parentElement.getBoundingClientRect();
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var w = Math.max(1, Math.round(rect.width * dpr));
+      var h = Math.max(1, Math.round(rect.height * dpr));
+      if (canvas.width !== w) canvas.width = w;
+      if (canvas.height !== h) canvas.height = h;
+      canvas.style.width = rect.width + "px";
+      canvas.style.height = rect.height + "px";
+      if (lastDrawnIndex >= 0) drawFrame(lastDrawnIndex);
+    }
+
+    function drawFrame(idx){
+      if (!ctx) return;
+      idx = Math.max(0, Math.min(totalFrames - 1, idx));
+      var useIdx = nearestLoadedIndex(idx);
+      if (useIdx === -1) return;
+      var img = images[useIdx];
+      lastDrawnIndex = idx;
+      var cw = canvas.width, ch = canvas.height;
+      ctx.clearRect(0, 0, cw, ch);
+      var scale = Math.min(cw / naturalW, ch / naturalH);
+      var dw = naturalW * scale, dh = naturalH * scale;
+      var dx = (cw - dw) / 2, dy = (ch - dh) / 2;
+      ctx.drawImage(img, dx, dy, dw, dh);
+    }
+
+    function setProgress(p){
+      if (!totalFrames) return;
+      var idx = Math.round(clamp01(p) * (totalFrames - 1));
+      drawFrame(idx);
+    }
+
+    function getCanvas(){ return canvas; }
+
+    return { init: init, setProgress: setProgress, getCanvas: getCanvas };
+  })();
+
+  function debounce(fn, wait){
+    var t;
+    return function(){
+      var args = arguments, ctx = this;
+      clearTimeout(t);
+      t = setTimeout(function(){ fn.apply(ctx, args); }, wait);
+    };
+  }
+
+  /* ================================================================
      ГЛАВНАЯ ИНИЦИАЛИЗАЦИЯ (после закрытия прелоадера)
      ================================================================ */
   function initApp(){
     var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var isMobileViewport = window.matchMedia("(max-width:767px)").matches;
 
     if (reducedMotion){ document.body.classList.add("reduced-motion"); }
+
+    /* ---------- ГЛАВА 1: hero-видео (не блокирует прелоадер, грузится тут) ---------- */
+    setupHeroVideo(reducedMotion);
+
+    /* ---------- ГЛАВА 2: банка — canvas-скраб. Инициализация и первый кадр
+       нужны и при reduced-motion (статичный кадр 1 без прелоада остальных). ---------- */
+    var jarCanvasEl = document.getElementById("jar-canvas");
+    if (jarCanvasEl){
+      JarCanvas.init(jarCanvasEl, { mobile: isMobileViewport, onlyFirst: reducedMotion });
+    }
 
     if (window.gsap && window.ScrollTrigger){
       gsap.registerPlugin(ScrollTrigger);
@@ -260,18 +460,10 @@
       });
     }
 
-    /* ---------- ГЛАВА 2: банка — кросс-фейд трёх ракурсов + HUD + macro ---------- */
-    var jarFront = document.querySelector('.jar-frame[data-jar="front"]');
-    var jarQuarter = document.querySelector('.jar-frame[data-jar="quarter"]');
-    var jarSide = document.querySelector('.jar-frame[data-jar="side"]');
-    var jarMacro = document.querySelector('.jar-frame[data-jar="macro"]');
+    /* ---------- ГЛАВА 2: банка — canvas-скраб 72 кадров + HUD ---------- */
     var hud1 = document.querySelector('[data-hud="1"]');
     var hud2 = document.querySelector('[data-hud="2"]');
     var hud3 = document.querySelector('[data-hud="3"]');
-
-    gsap.set(jarQuarter, { opacity:0, scale:1.03 });
-    gsap.set(jarSide, { opacity:0, scale:1.03 });
-    gsap.set(jarMacro, { opacity:0 });
 
     ScrollTrigger.create({
       trigger: "#jar-wrap",
@@ -282,25 +474,47 @@
       onUpdate: function(self){
         var p = self.progress;
 
-        // Кросс-фейд ракурсов по третям
-        var frontOp = 1 - smooth01((p - 0.18) / 0.15);
-        var quarterOp = smooth01((p - 0.18) / 0.15) * (1 - smooth01((p - 0.51) / 0.15));
-        var sideOp = smooth01((p - 0.51) / 0.15);
+        JarCanvas.setProgress(p);
 
-        gsap.set(jarFront, { opacity: clamp01(frontOp) });
-        gsap.set(jarQuarter, { opacity: clamp01(quarterOp), scale: 1 + 0.03 * (1 - clamp01(quarterOp)) });
-        gsap.set(jarSide, { opacity: clamp01(sideOp), scale: 1 + 0.03 * (1 - clamp01(sideOp)) });
-
-        // Финальные 15% пина — кросс-фейд в макро
-        var macroOp = smooth01((p - 0.85) / 0.15);
-        gsap.set(jarMacro, { opacity: macroOp });
-
-        // HUD-выноски по третям
+        // HUD-выноски по третям (без изменений относительно v3)
         setHud(hud1, p >= 0.02 && p < 0.35);
         setHud(hud2, p >= 0.35 && p < 0.68);
         setHud(hud3, p >= 0.68 && p < 0.85);
       }
     });
+
+    /* ---------- Пролёт банки: фирменный момент между главой 2 и главой 5.
+       Только десктоп (≥768px), только без reduced-motion (мы уже внутри
+       не-reduced ветки). Использует последний кадр (jar-a-0072.webp) как <img>,
+       летит по фиксированной позиции от центра экрана к счётчику предзаказа. ---------- */
+    if (!isMobileViewport){
+      var jarFly = document.getElementById("jar-fly");
+      if (jarFly){
+        jarFly.style.display = "block";
+        gsap.set(jarFly, { xPercent:-50, yPercent:-50, opacity:0 });
+
+        ScrollTrigger.create({
+          trigger: "#jar-wrap",
+          start: "bottom top",
+          endTrigger: "#preorder",
+          end: "top center",
+          scrub: true,
+          onUpdate: function(self){
+            var p = self.progress;
+            var vw = window.innerWidth, vh = window.innerHeight;
+
+            var x = vw * 0.5;
+            var y = lerp(vh * 0.5, vh * 0.34, p);
+            var scale = lerp(1, 0.22, p);
+            var rotation = lerp(0, -18, p);
+            var opacity = p < 0.72 ? 1 : clamp01(1 - (p - 0.72) / 0.28);
+
+            gsap.set(jarFly, { x:x, y:y, scale:scale, rotation:rotation, opacity:opacity });
+          },
+          onLeaveBack: function(){ gsap.set(jarFly, { opacity:0 }); }
+        });
+      }
+    }
 
     function setHud(el, active){
       if (!el) return;
@@ -426,6 +640,7 @@
 
   function clamp01(v){ return Math.max(0, Math.min(1, v)); }
   function smooth01(v){ v = clamp01(v); return v * v * (3 - 2 * v); }
+  function lerp(a, b, t){ return a + (b - a) * t; }
 
   /* ---------- Счётчик предзаказа ---------- */
   function initCounters(){
