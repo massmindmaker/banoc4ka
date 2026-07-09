@@ -12,30 +12,74 @@
   ];
 
   // Раскадровка v4: логическое имя ассета (см. data-bg в index.html) -> реальный
-  // файл в assets/. lab, manifesto-sky, ingredients-levitation, sky-panorama
-  // не менялись (глава 4 ждёт мужского персонажа; UGC-полоса не трогается) — остаются старыми jpg.
-  // hero-sky теперь — мастер-кадр B (статичный фолбэк/OG для видео-hero, см. setupHeroVideo()).
-  // jar-front/quarter/side удалены v3→v4: глава 2 больше не грузит их — заменены
-  // на canvas-скраб 72 кадров assets/jar-alpha/ (JarCanvas), которые прелоадер
-  // НЕ ждёт (грузятся прогрессивно после старта страницы). jar-macro остаётся —
-  // используется в UGC-полосе главы 7 (data-bg="jar-macro").
-  var ASSET_FILES = {
-    "hero-sky":              "hero-soft-B.png",
-    "jar-macro":             "SB-03.png",
-    "farm":                  "SB-04.png",
-    "workshop":              "SB-05.png",
-    "lab":                   "lab.jpg",
-    "shelf":                 "SB-07.png",
-    "manifesto-sky":         "manifesto-sky.jpg",
-    "burst":                 "SB-09.png",
-    "members-sky":           "SB-11.png",
-    "ingredients-levitation":"ingredients-levitation.jpg",
-    "sky-panorama":          "sky-panorama.jpg"
+  // файл в assets/. hero-sky теперь — мастер-кадр B (статичный фолбэк/OG для
+  // видео-hero, см. setupHeroVideo()). jar-front/quarter/side удалены v3→v4:
+  // глава 2 больше не грузит их — заменены на canvas-скраб 72 кадров
+  // assets/jar-alpha/ (JarCanvas), которые прелоадер НЕ ждёт (грузятся
+  // прогрессивно после старта страницы). jar-macro остаётся — используется в
+  // UGC-полосе главы 7 (data-bg="jar-macro").
+  //
+  // Перф-редизайн (вес до load): у каждого фона теперь есть .avif и .webp
+  // рядом с оригиналом (см. ASSET_ORIGINAL_EXT). Загрузка пробует по цепочке
+  // avif → webp → оригинал через реальный Image().onerror — это надёжнее, чем
+  // canvas.toDataURL('image/webp'), т.к. проверяет фактическую декодируемость
+  // конкретного файла в конкретном браузере, а не общую поддержку формата.
+  var ASSET_BASENAMES = {
+    "hero-sky":              "hero-soft-B",
+    "jar-macro":             "SB-03",
+    "farm":                  "SB-04",
+    "workshop":              "SB-05",
+    "lab":                   "lab",
+    "shelf":                 "SB-07",
+    "manifesto-sky":         "manifesto-sky",
+    "burst":                 "SB-09",
+    "members-sky":           "SB-11",
+    "ingredients-levitation":"ingredients-levitation",
+    "sky-panorama":          "sky-panorama"
   };
 
-  var ASSET_STATUS = {}; // name -> true (loaded) | false (error)
+  var ASSET_ORIGINAL_EXT = {
+    "hero-sky":              "png",
+    "jar-macro":             "png",
+    "farm":                  "png",
+    "workshop":              "png",
+    "lab":                   "jpg",
+    "shelf":                 "png",
+    "manifesto-sky":         "jpg",
+    "burst":                 "png",
+    "members-sky":           "png",
+    "ingredients-levitation":"jpg",
+    "sky-panorama":          "jpg"
+  };
 
-  function assetPath(name){ return "assets/" + (ASSET_FILES[name] || (name + ".jpg")); }
+  var ASSET_STATUS = {};   // name -> true (loaded) | false (error)
+  var ASSET_RESOLVED = {}; // name -> URL, который реально загрузился (avif/webp/оригинал)
+
+  function assetCandidates(name){
+    var base = ASSET_BASENAMES[name] || name;
+    var ext = ASSET_ORIGINAL_EXT[name] || "jpg";
+    return [
+      "assets/" + base + ".avif",
+      "assets/" + base + ".webp",
+      "assets/" + base + "." + ext
+    ];
+  }
+
+  // Пробует загрузить кандидатов по очереди (avif → webp → оригинал), берёт
+  // первый, который реально декодировался в этом браузере/сети.
+  function loadWithFallback(name, onDone){
+    var candidates = assetCandidates(name);
+    var i = 0;
+    function tryNext(){
+      if (i >= candidates.length){ onDone(false); return; }
+      var url = candidates[i++];
+      var img = new Image();
+      img.onload = function(){ ASSET_RESOLVED[name] = url; onDone(true); };
+      img.onerror = tryNext;
+      img.src = url;
+    }
+    tryNext();
+  }
 
   /* ---------------- ПРЕЛОАДЕР: реальный прогресс ---------------- */
   function preload(done){
@@ -55,10 +99,11 @@
     if (total === 0){ update(); return; }
 
     ASSET_NAMES.forEach(function(name){
-      var img = new Image();
-      img.onload = function(){ ASSET_STATUS[name] = true; settled++; update(); };
-      img.onerror = function(){ ASSET_STATUS[name] = false; settled++; update(); };
-      img.src = assetPath(name);
+      loadWithFallback(name, function(ok){
+        ASSET_STATUS[name] = ok;
+        settled++;
+        update();
+      });
     });
 
     update();
@@ -69,8 +114,8 @@
     var nodes = document.querySelectorAll("[data-bg]");
     nodes.forEach(function(el){
       var name = el.getAttribute("data-bg");
-      if (ASSET_STATUS[name]){
-        el.style.backgroundImage = "url('" + assetPath(name) + "')";
+      if (ASSET_STATUS[name] && ASSET_RESOLVED[name]){
+        el.style.backgroundImage = "url('" + ASSET_RESOLVED[name] + "')";
       } else {
         el.classList.add("asset-missing");
       }
@@ -685,8 +730,26 @@
   /* ---------- Формы предзаказа / пайщика ---------- */
   function initForms(){
     document.querySelectorAll(".reserve-form").forEach(function(form){
+      // Кнопка отправки заблокирована, пока не отмечен чекбокс согласия на
+      // обработку ПДн (юридическое требование — см. privacy.html/offer.html).
+      var consentInput = form.querySelector('input[name="consent"]');
+      var submitBtn = form.querySelector('button[type="submit"]');
+      if (consentInput && submitBtn){
+        var syncSubmitState = function(){ submitBtn.disabled = !consentInput.checked; };
+        consentInput.addEventListener("change", syncSubmitState);
+        syncSubmitState();
+      }
+
       form.addEventListener("submit", function(e){
         e.preventDefault();
+
+        // Дублируем проверку согласия на JS-уровне (не только disabled-кнопка
+        // и required — на случай программной отправки формы).
+        if (consentInput && !consentInput.checked){
+          consentInput.focus();
+          return;
+        }
+
         var key = form.getAttribute("data-storage-key") || "banochka_reserve";
         var from = parseInt(form.getAttribute("data-range-from"), 10) || 100;
         var to = parseInt(form.getAttribute("data-range-to"), 10) || 200;
@@ -697,13 +760,16 @@
 
         var nameVal = form.elements["name"] ? form.elements["name"].value : "";
         var contactVal = form.elements["contact"] ? form.elements["contact"].value : "";
+        var websiteVal = form.elements["website"] ? form.elements["website"].value : "";
         var roleVal = null;
         var cityVal = null;
 
         var payload = {
           type: (hasRole && hasCity) ? "preorder" : "pai",
           name: nameVal,
-          contact: contactVal
+          contact: contactVal,
+          website: websiteVal, // honeypot: пустое у людей, заполнено ботами
+          consent: true
         };
 
         if (hasRole && hasCity){
@@ -835,6 +901,12 @@
   ];
 
   var MAP_STORAGE_KEY = "banochka_map_points";
+
+  // Стартовый оффсет кампании: 137 "бумажных" предзаказов, собранных до
+  // запуска живого счётчика с бэкенда. Реальные заявки (api/summary.js
+  // -> preorders) складываются поверх этого числа как в счётчике (глава 5),
+  // так и в html-фолбэке data-target на случай, если /api/summary недоступен.
+  var PREORDER_BASE = 137;
 
   var mapDotsEl = null;
   var mapLegendEl = null;
@@ -1000,10 +1072,10 @@
   function applyLiveSummary(summary){
     if (!summary) return;
 
-    // Глава 5: счётчик предзаказов = демо-база (137) + реальные предзаказы.
+    // Глава 5: счётчик предзаказов = демо-база (PREORDER_BASE) + реальные предзаказы.
     var counterEl = document.getElementById("preorder-count");
     if (counterEl){
-      counterEl.setAttribute("data-target", String(137 + (summary.preorders || 0)));
+      counterEl.setAttribute("data-target", String(PREORDER_BASE + (summary.preorders || 0)));
     }
 
     // Глава 6: одна живая точка на город из byCity, цвет — преобладающая роль.
