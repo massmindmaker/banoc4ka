@@ -5,9 +5,25 @@
    Юридика: требует явного consent:true (152-ФЗ, см. privacy.html/offer.html) —
    без него 400. Анти-спам: honeypot-поле "website" (боты его заполняют, люди
    не видят — CSS position:absolute;left:-9999px) и rate-limit 5 заявок/10 мин
-   на IP (состояние в Vercel Blob, ip хранится только в виде sha256-хеша).
+   на IP (ip хранится только в виде sha256-хеша).
+
+   ВАЖНО про rate-limit: состояние держится В ПАМЯТИ функции (module-level
+   Map), а НЕ в Vercel Blob. Изначально лимит был реализован через Blob
+   (ratelimit/<hash>.json), но эмпирическая проверка показала, что Blob не
+   даёт надёжной read-after-write консистентности при быстром overwrite
+   одного и того же pathname: даже через get(..., {useCache:false}) — то
+   есть в обход публичного CDN, напрямую в origin — при 6 последовательных
+   вызовах чтение иногда внезапно возвращало пустой массив вместо только что
+   записанных таймстемпов (см. итерацию 5 в тесте: записали 3 таймстемпа,
+   прочитали 0). Blob рассчитан на объекты, которые не перезаписываются
+   часто, а не на "живой счётчик". Поэтому лимит хранится в памяти процесса:
+   он переживает повторные вызовы на одном тёплом (warm) инстансе функции,
+   но НЕ персистентен между инстансами — при холодном старте или если
+   Vercel поднимет несколько параллельных инстансов под нагрузкой, счётчик
+   на каждом инстансе свой. Для защиты от обычного спама (один бот/скрипт,
+   бьющий в один инстанс) этого достаточно; от распределённой атаки — нет.
    ========================================================================== */
-const { put, get } = require("@vercel/blob");
+const { put } = require("@vercel/blob");
 const crypto = require("crypto");
 
 const ALLOWED_TYPES = ["preorder", "pai"];
@@ -16,6 +32,9 @@ const ALLOWED_ROLES = ["потребитель", "фермер", "цех", "ск
 
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 минут
+
+// module-level — живёт, пока жив тёплый инстанс функции (см. комментарий выше).
+const rateLimitStore = new Map(); // sha256(ip) -> timestamps[]
 
 function isNonEmptyString(v, maxLen) {
   return typeof v === "string" && v.trim().length > 0 && v.length <= maxLen;
@@ -33,68 +52,23 @@ function hashIp(ip) {
   return crypto.createHash("sha256").update(ip).digest("hex");
 }
 
-// Rate-limit: скользящее окно 10 минут, состояние — Vercel Blob
-// (ratelimit/<sha256(ip)>.json), т.к. serverless-функции не гарантируют
-// разделяемую память между вызовами (каждый вызов может попасть в новый
-// контейнер). Возвращает true, если заявку МОЖНО принять.
-//
-// ВАЖНО: читаем через get(..., { useCache:false }), а не fetch(url) на
-// публичный URL блоба — публичные blob-URL отдаются через CDN с кэшем от
-// 1 минуты, и при overwrite того же pathname обычные fetch(url) какое-то
-// время видят старое содержимое (проверено эмпирически: 3 записи подряд
-// давали 3 одинаковых "старых" прочтения). get(useCache:false) всегда
-// бьёт в origin storage и видит актуальные данные.
-async function checkAndRecordRateLimit(ip) {
-  const pathname = "ratelimit/" + hashIp(ip) + ".json";
+// Rate-limit: скользящее окно 10 минут. Возвращает true, если заявку МОЖНО принять.
+function checkAndRecordRateLimit(ip) {
+  const key = hashIp(ip);
   const now = Date.now();
 
-  let timestamps = [];
-  try {
-    const result = await get(pathname, { access: "public", useCache: false });
-    console.log("[ratelimit] get result:", pathname, result && result.statusCode);
-    if (result && result.statusCode === 200 && result.stream) {
-      const text = await new Response(result.stream).text();
-      const data = JSON.parse(text);
-      if (data && Array.isArray(data.timestamps)) {
-        timestamps = data.timestamps;
-      }
-    }
-  } catch (err) {
-    // Blob не найден или ошибка чтения — считаем, что истории ещё нет.
-    console.log("[ratelimit] get error:", err && err.message);
-    timestamps = [];
-  }
-  console.log("[ratelimit] ip:", ip, "timestamps before:", timestamps.length);
-
-  const recent = timestamps.filter(function (ts) {
-    return typeof ts === "number" && now - ts < RATE_LIMIT_WINDOW_MS;
+  const existing = rateLimitStore.get(key) || [];
+  const recent = existing.filter(function (ts) {
+    return now - ts < RATE_LIMIT_WINDOW_MS;
   });
 
-  const putOpts = {
-    access: "public",
-    addRandomSuffix: false,
-    allowOverwrite: true,
-    contentType: "application/json",
-    cacheControlMaxAge: 60 // минимум, допустимый SDK; чтение всё равно идёт мимо кэша
-  };
-
   if (recent.length >= RATE_LIMIT_MAX) {
-    // Всё равно сохраняем обрезанный список, чтобы файл не рос бесконечно.
-    try {
-      await put(pathname, JSON.stringify({ timestamps: recent }), putOpts);
-    } catch (err) {
-      // Не критично — просто не обновили таймстемпы, лимит всё равно сработал.
-    }
+    rateLimitStore.set(key, recent);
     return false;
   }
 
   recent.push(now);
-  try {
-    await put(pathname, JSON.stringify({ timestamps: recent }), putOpts);
-  } catch (err) {
-    // Если запись лимита не удалась — не блокируем легитимную заявку из-за инфры.
-  }
-
+  rateLimitStore.set(key, recent);
   return true;
 }
 
@@ -146,8 +120,7 @@ module.exports = async function handler(req, res) {
   }
 
   const ip = getClientIp(req);
-  console.log("[ratelimit] raw xff header:", req.headers["x-forwarded-for"], "resolved ip:", ip);
-  const allowed = await checkAndRecordRateLimit(ip);
+  const allowed = checkAndRecordRateLimit(ip);
   if (!allowed) {
     return res.status(429).json({ error: "too many requests" });
   }
