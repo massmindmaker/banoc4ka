@@ -5,7 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Стратегия запуска — Баночка</title>
 <meta name="description" content="Как «Баночка» превращает контент в кооператив — по этапам. Схема движения от PinGlass до фермеров, этапы запуска и цели на 90 дней.">
-<link rel="icon" href="data:,">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+<meta property="og:title" content="Стратегия запуска — Баночка">
+<meta property="og:description" content="Как «Баночка» превращает контент в кооператив — по этапам. Схема движения от PinGlass до фермеров, этапы запуска и цели на 90 дней.">
+<meta property="og:image" content="/assets/SB-01-nb2.png">
+<meta property="og:url" content="https://banoc4ka.vercel.app/strategy.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,7 +41,7 @@
   }
 
   .strategy-back:hover{
-    color:var(--sunset);
+    color:var(--cta);
     opacity:1;
     transform:translateX(-3px);
   }
@@ -75,14 +82,14 @@
   }
 
   .strategy-dark{
-    background:linear-gradient(180deg, var(--sky-2) 0%, var(--ink) 100%);
-    color:var(--cream);
+    background:linear-gradient(180deg, var(--ink) 0%, var(--ink-2) 100%);
+    color:var(--bg);
   }
 
   .strategy-eyebrow{
     font-size:12px;
     letter-spacing:0.14em;
-    color:var(--amber);
+    color:var(--accent);
     text-align:center;
     margin-bottom:44px;
   }
@@ -120,8 +127,8 @@
     padding:16px 10px;
     margin-right:22px;
     border-radius:16px;
-    background:rgba(250,246,239,0.06);
-    border:1px solid rgba(250,246,239,0.18);
+    background:rgba(245,228,199,0.06);
+    border:1px solid rgba(245,228,199,0.18);
     animation:fadeUp 0.6s ease both;
   }
 
@@ -143,7 +150,7 @@
 
   .scheme-block-sub{
     font-size:10.5px;
-    color:var(--amber);
+    color:var(--accent);
     opacity:0.9;
     letter-spacing:0.03em;
     line-height:1.3;
@@ -155,7 +162,7 @@
     right:-27px;
     top:50%;
     transform:translateY(-50%);
-    color:var(--amber);
+    color:var(--accent);
     font-size:18px;
     animation:pulseArrow 2.2s ease-in-out infinite;
     animation-delay:inherit;
@@ -167,7 +174,7 @@
     text-align:center;
     font-size:15px;
     line-height:1.6;
-    color:rgba(250,246,239,0.85);
+    color:rgba(245,228,199,0.85);
   }
 
   @media (max-width:767px){
@@ -191,8 +198,8 @@
 
   .stage-card{
     background:#fff;
-    border:1px solid rgba(20,33,46,0.08);
-    border-top:3px solid rgba(20,33,46,0.08);
+    border:1px solid rgba(16,11,6,0.08);
+    border-top:3px solid rgba(16,11,6,0.08);
     border-radius:18px;
     padding:28px 26px;
     display:flex;
@@ -202,7 +209,7 @@
     animation:fadeUp 0.6s ease both;
   }
 
-  .stage-card:first-child{ border-top-color:var(--amber); }
+  .stage-card:first-child{ border-top-color:var(--accent); }
 
   .stage-grid .stage-card:nth-child(1){ animation-delay:0.05s; }
   .stage-grid .stage-card:nth-child(2){ animation-delay:0.1s; }
@@ -213,12 +220,12 @@
 
   .stage-card:hover{
     transform:translateY(-4px);
-    box-shadow:0 14px 34px rgba(20,33,46,0.1);
+    box-shadow:0 14px 34px rgba(16,11,6,0.1);
   }
 
   .stage-num{
     font-size:13px;
-    color:var(--sunset);
+    color:var(--cta);
     letter-spacing:0.06em;
   }
 
@@ -244,13 +251,13 @@
     margin:0;
     padding:10px 14px;
     border-radius:10px;
-    background:rgba(20,33,46,0.04);
-    border-left:3px solid var(--sky-1);
+    background:rgba(16,11,6,0.04);
+    border-left:3px solid var(--support);
   }
 
-  .stage-track--points{ border-left-color:var(--amber); }
+  .stage-track--points{ border-left-color:var(--accent); }
 
-  .stage-track strong{ color:var(--sky-2); }
+  .stage-track strong{ color:var(--ink); }
 
   .fine-print{
     font-size:11.5px;
@@ -258,7 +265,7 @@
     opacity:0.55;
     margin:2px 0 0;
     padding-top:12px;
-    border-top:1px dashed rgba(20,33,46,0.16);
+    border-top:1px dashed rgba(16,11,6,0.16);
   }
 
   /* ---------- КАНАЛЫ ---------- */
@@ -297,7 +304,7 @@
   .goal-number{
     font-size:clamp(40px,7vw,72px);
     font-weight:700;
-    color:var(--amber);
+    color:var(--accent);
     line-height:1;
     margin-bottom:12px;
   }
@@ -305,7 +312,7 @@
   .goal-label{
     font-size:13px;
     letter-spacing:0.02em;
-    color:rgba(250,246,239,0.82);
+    color:rgba(245,228,199,0.82);
   }
 
   /* ---------- CTA ---------- */

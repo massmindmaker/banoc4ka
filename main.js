@@ -547,11 +547,11 @@
      ГЛАВА 6: КАРТА ЗАЯВОК
      ================================================================ */
   var ROLE_META = {
-    consumer:  { label:"Потребитель", color:"#F4A824" },
-    farmer:    { label:"Фермер",      color:"#7BC47F" },
-    workshop:  { label:"Цех",         color:"#FF8A3D" },
-    warehouse: { label:"Склад",       color:"#6FA8DC" },
-    logistics: { label:"Логистика",   color:"#E4557A" }
+    consumer:  { label:"Потребитель", color:"#C1651D" },
+    farmer:    { label:"Фермер",      color:"#4A5D3A" },
+    workshop:  { label:"Цех",         color:"#D2451E" },
+    warehouse: { label:"Склад",       color:"#8A6F4E" },
+    logistics: { label:"Логистика",   color:"#7C3535" }
   };
   var ROLE_ORDER = ["consumer","farmer","workshop","warehouse","logistics"];
 

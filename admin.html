@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Баночка — админка заявок</title>
 <meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +15,7 @@
 <style>
   body.admin-body{
     min-height:100vh;
-    background:linear-gradient(160deg, var(--sky-2) 0%, var(--ink) 85%);
+    background:linear-gradient(160deg, var(--ink) 0%, var(--ink-2) 85%);
   }
 
   /* ---------- Экран входа ---------- */
@@ -29,8 +30,8 @@
   .admin-login-card{
     width:100%;
     max-width:380px;
-    background:rgba(250,246,239,0.05);
-    border:1px solid rgba(250,246,239,0.16);
+    background:rgba(245,228,199,0.05);
+    border:1px solid rgba(245,228,199,0.16);
     backdrop-filter:blur(6px);
     -webkit-backdrop-filter:blur(6px);
     border-radius:18px;
@@ -42,13 +43,13 @@
     font-family:var(--font-head);
     font-size:20px;
     letter-spacing:0.04em;
-    color:var(--amber);
+    color:var(--accent);
     margin-bottom:10px;
   }
 
   .admin-login-sub{
     font-size:14px;
-    color:rgba(250,246,239,0.72);
+    color:rgba(245,228,199,0.72);
     margin-bottom:24px;
   }
 
@@ -61,17 +62,17 @@
   .admin-login-card input[type="password"]{
     padding:14px 16px;
     border-radius:12px;
-    border:1px solid rgba(250,246,239,0.24);
-    background:rgba(250,246,239,0.06);
-    color:var(--cream);
+    border:1px solid rgba(245,228,199,0.24);
+    background:rgba(245,228,199,0.06);
+    color:var(--bg);
     font-family:var(--font-body);
     font-size:15px;
   }
 
-  .admin-login-card input[type="password"]::placeholder{ color:rgba(250,246,239,0.5); }
+  .admin-login-card input[type="password"]::placeholder{ color:rgba(245,228,199,0.5); }
 
   .admin-login-card input[type="password"]:focus{
-    outline:2px solid var(--sunset);
+    outline:2px solid var(--cta);
     outline-offset:2px;
   }
 
@@ -80,7 +81,7 @@
   .admin-error{
     margin-top:16px;
     font-size:13px;
-    color:var(--role-logistics);
+    color:var(--cta);
   }
 
   /* ---------- Дашборд ---------- */
@@ -88,7 +89,7 @@
     max-width:1200px;
     margin:0 auto;
     padding:40px 24px 80px;
-    color:var(--cream);
+    color:var(--bg);
   }
 
   .admin-header{
@@ -104,7 +105,7 @@
     font-family:var(--font-head);
     font-size:22px;
     letter-spacing:0.04em;
-    color:var(--amber);
+    color:var(--accent);
   }
 
   .admin-header-actions{
@@ -114,7 +115,7 @@
   }
 
   .admin-header-actions .btn{ padding:10px 20px; font-size:13px; }
-  .admin-header-actions .btn-ghost{ color:var(--cream); border-color:rgba(250,246,239,0.4); }
+  .admin-header-actions .btn-ghost{ color:var(--bg); border-color:rgba(245,228,199,0.4); }
 
   .admin-summary{
     display:flex;
@@ -124,8 +125,8 @@
   }
 
   .admin-stat{
-    background:rgba(250,246,239,0.05);
-    border:1px solid rgba(250,246,239,0.16);
+    background:rgba(245,228,199,0.05);
+    border:1px solid rgba(245,228,199,0.16);
     border-radius:14px;
     padding:18px 22px;
     min-width:150px;
@@ -138,19 +139,19 @@
     font-family:var(--font-head);
     font-weight:800;
     font-size:32px;
-    color:var(--sunset);
+    color:var(--cta);
     line-height:1;
   }
 
   .admin-stat-label{
     font-size:11px;
     letter-spacing:0.06em;
-    color:rgba(250,246,239,0.65);
+    color:rgba(245,228,199,0.65);
   }
 
   .admin-breakdown{
-    background:rgba(250,246,239,0.05);
-    border:1px solid rgba(250,246,239,0.16);
+    background:rgba(245,228,199,0.05);
+    border:1px solid rgba(245,228,199,0.16);
     border-radius:14px;
     padding:18px 22px;
     min-width:200px;
@@ -160,7 +161,7 @@
   .admin-breakdown h3{
     font-size:12px;
     letter-spacing:0.08em;
-    color:var(--amber);
+    color:var(--accent);
     margin:0 0 12px;
   }
 
@@ -179,7 +180,7 @@
     align-items:center;
     gap:8px;
     font-size:13px;
-    color:rgba(250,246,239,0.9);
+    color:rgba(245,228,199,0.9);
   }
 
   .admin-swatch{
@@ -191,7 +192,7 @@
 
   .admin-table-wrap{
     overflow-x:auto;
-    border:1px solid rgba(250,246,239,0.16);
+    border:1px solid rgba(245,228,199,0.16);
     border-radius:14px;
   }
 
@@ -206,7 +207,7 @@
   .admin-table td{
     text-align:left;
     padding:12px 16px;
-    border-bottom:1px solid rgba(250,246,239,0.12);
+    border-bottom:1px solid rgba(245,228,199,0.12);
     white-space:nowrap;
   }
 
@@ -214,11 +215,11 @@
     font-family:var(--font-mono);
     font-size:11px;
     letter-spacing:0.06em;
-    color:var(--amber);
-    background:rgba(250,246,239,0.04);
+    color:var(--accent);
+    background:rgba(245,228,199,0.04);
   }
 
-  .admin-table tbody tr:hover{ background:rgba(250,246,239,0.04); }
+  .admin-table tbody tr:hover{ background:rgba(245,228,199,0.04); }
 
   .admin-empty{
     text-align:center;
@@ -291,11 +292,11 @@
   var currentLeads = [];
 
   var ROLE_COLORS = {
-    "потребитель": "#F4A824",
-    "фермер": "#7BC47F",
-    "цех": "#FF8A3D",
-    "склад": "#6FA8DC",
-    "логистика": "#E4557A"
+    "потребитель": "#C1651D",
+    "фермер": "#4A5D3A",
+    "цех": "#D2451E",
+    "склад": "#8A6F4E",
+    "логистика": "#7C3535"
   };
 
   function showError(msg){
@@ -367,7 +368,7 @@
     if (roleKeys.length){
       html += '<div class="admin-breakdown"><h3 class="mono">ПО РОЛЯМ</h3><ul>';
       roleKeys.forEach(function(r){
-        var color = ROLE_COLORS[r] || "#F4A824";
+        var color = ROLE_COLORS[r] || "#C1651D";
         html += "<li><span class=\"admin-swatch\" style=\"background:" + color + "\"></span>" + escapeHtml(capitalize(r)) + ": " + byRole[r] + "</li>";
       });
       html += "</ul></div>";
