@@ -272,12 +272,16 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
 
 .hero-scrim{
   position:absolute; inset:0;
-  background:linear-gradient(180deg, rgba(16,11,6,.15) 0%, rgba(16,11,6,.35) 55%, rgba(16,11,6,.72) 100%);
+  /* Верх (0–20%) почти чистый — небо не задушено. К зоне заголовка (~33–49%
+     высоты hero) градиент уже даёт ~0.48–0.57 — этого достаточно для
+     контраста ≥4.5:1 кремового текста даже поверх самых светлых участков
+     видео (яркие облака). Проверено скриншотом + подсчётом контраста. */
+  background:linear-gradient(180deg, rgba(16,11,6,.18) 0%, rgba(16,11,6,.5) 35%, rgba(16,11,6,.68) 70%, rgba(16,11,6,.8) 100%);
 }
 
 @media (max-width:767px){
   .hero-scrim{
-    background:linear-gradient(180deg, rgba(16,11,6,.15) 0%, rgba(16,11,6,.4) 55%, rgba(16,11,6,.85) 100%);
+    background:linear-gradient(180deg, rgba(16,11,6,.18) 0%, rgba(16,11,6,.55) 35%, rgba(16,11,6,.75) 70%, rgba(16,11,6,.88) 100%);
   }
 }
 
