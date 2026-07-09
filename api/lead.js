@@ -51,6 +51,7 @@ async function checkAndRecordRateLimit(ip) {
   let timestamps = [];
   try {
     const result = await get(pathname, { access: "public", useCache: false });
+    console.log("[ratelimit] get result:", pathname, result && result.statusCode);
     if (result && result.statusCode === 200 && result.stream) {
       const text = await new Response(result.stream).text();
       const data = JSON.parse(text);
@@ -60,8 +61,10 @@ async function checkAndRecordRateLimit(ip) {
     }
   } catch (err) {
     // Blob не найден или ошибка чтения — считаем, что истории ещё нет.
+    console.log("[ratelimit] get error:", err && err.message);
     timestamps = [];
   }
+  console.log("[ratelimit] ip:", ip, "timestamps before:", timestamps.length);
 
   const recent = timestamps.filter(function (ts) {
     return typeof ts === "number" && now - ts < RATE_LIMIT_WINDOW_MS;
@@ -143,6 +146,7 @@ module.exports = async function handler(req, res) {
   }
 
   const ip = getClientIp(req);
+  console.log("[ratelimit] raw xff header:", req.headers["x-forwarded-for"], "resolved ip:", ip);
   const allowed = await checkAndRecordRateLimit(ip);
   if (!allowed) {
     return res.status(429).json({ error: "too many requests" });
