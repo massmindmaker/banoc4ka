@@ -131,25 +131,34 @@
     }
   }
 
-  /* ---------------- Пословный сплиттер (фолбэк на SplitText) ---------------- */
+  /* ---------------- Пословный сплиттер (фолбэк на SplitText) ----------------
+     Обходит childNodes, а не textContent целиком, чтобы сохранить <br> и
+     прочую разметку внутри заголовка (textContent схлопнул бы <br>). */
   function splitWords(el){
-    var text = el.textContent;
-    el.textContent = "";
-    var words = text.split(" ");
     var frag = document.createDocumentFragment();
     var allWords = [];
 
-    words.forEach(function(word, wi){
-      var wordSpan = document.createElement("span");
-      wordSpan.className = "word";
-      wordSpan.textContent = word;
-      frag.appendChild(wordSpan);
-      allWords.push(wordSpan);
-      if (wi < words.length - 1){
-        frag.appendChild(document.createTextNode(" "));
+    function wrapWord(word){
+      var span = document.createElement("span");
+      span.className = "word";
+      span.textContent = word;
+      allWords.push(span);
+      return span;
+    }
+
+    Array.prototype.slice.call(el.childNodes).forEach(function(node){
+      if (node.nodeType === Node.TEXT_NODE){
+        var parts = node.textContent.split(" ");
+        parts.forEach(function(part, i){
+          if (part !== ""){ frag.appendChild(wrapWord(part)); }
+          if (i < parts.length - 1){ frag.appendChild(document.createTextNode(" ")); }
+        });
+      } else {
+        frag.appendChild(node.cloneNode(true));
       }
     });
 
+    el.textContent = "";
     el.appendChild(frag);
     return allWords;
   }
