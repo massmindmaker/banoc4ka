@@ -131,32 +131,27 @@
     }
   }
 
-  /* ---------------- Посимвольный сплиттер (фолбэк на SplitText) ---------------- */
-  function splitChars(el){
+  /* ---------------- Пословный сплиттер (фолбэк на SplitText) ---------------- */
+  function splitWords(el){
     var text = el.textContent;
     el.textContent = "";
     var words = text.split(" ");
     var frag = document.createDocumentFragment();
-    var allChars = [];
+    var allWords = [];
 
     words.forEach(function(word, wi){
       var wordSpan = document.createElement("span");
       wordSpan.className = "word";
-      word.split("").forEach(function(ch){
-        var span = document.createElement("span");
-        span.className = "char";
-        span.textContent = ch;
-        wordSpan.appendChild(span);
-        allChars.push(span);
-      });
+      wordSpan.textContent = word;
       frag.appendChild(wordSpan);
+      allWords.push(wordSpan);
       if (wi < words.length - 1){
         frag.appendChild(document.createTextNode(" "));
       }
     });
 
     el.appendChild(frag);
-    return allChars;
+    return allWords;
   }
 
   /* ================================================================
@@ -412,29 +407,30 @@
     /* ---------- ГЛАВА 6: карта заявок — инициализация независима от GSAP ---------- */
     initMap();
 
-    /* ---------- HERO: посимвольный заголовок ---------- */
+    /* ---------- HERO: заголовок появляется по словам (не по буквам),
+       чтобы «В БАНКЕ.» не рвалось на анимации ---------- */
     var heroTitle = document.getElementById("hero-title");
     if (heroTitle){
-      var chars;
+      var words;
       if (window.SplitText){
-        // words+chars: слова остаются неразрывными (SplitText сам добавляет
-        // white-space:nowrap словам), перенос строки происходит только между словами.
-        var st = new SplitText(heroTitle, { type:"words, chars" });
-        chars = st.chars;
-        chars.forEach(function(c){ c.classList.add("char"); });
+        // type:"words" — SplitText сам добавляет white-space:nowrap словам,
+        // перенос строки возможен только между словами, не внутри.
+        var st = new SplitText(heroTitle, { type:"words" });
+        words = st.words;
+        words.forEach(function(w){ w.classList.add("word"); });
       } else {
-        chars = splitChars(heroTitle);
+        words = splitWords(heroTitle);
       }
 
       if (reducedMotion || !window.gsap){
-        chars.forEach(function(c){ c.style.opacity = 1; });
+        words.forEach(function(w){ w.style.opacity = 1; });
       } else {
-        gsap.set(chars, { opacity:0, y:40 });
-        gsap.to(chars, {
+        gsap.set(words, { opacity:0, y:40 });
+        gsap.to(words, {
           opacity:1, y:0,
           duration:0.7,
           ease:"power2.out",
-          stagger:0.03,
+          stagger:0.08,
           delay:0.15
         });
       }
