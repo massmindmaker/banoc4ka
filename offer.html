@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Публичная оферта предзаказа — Баночка</title>
+<meta name="description" content="Баночка — условия бронирования банки первой варки: предмет, бесплатность брони, порядок подтверждения цены и сроков, право отказаться.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+<meta property="og:title" content="Публичная оферта предзаказа — Баночка">
+<meta property="og:description" content="Условия бронирования банки первой варки «Баночка».">
+<meta property="og:url" content="https://banoc4ka.vercel.app/offer.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800;900&family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+<style>
+  /* ==========================================================================
+     ЮРИДИЧЕСКИЕ СТРАНИЦЫ (privacy.html / offer.html) — тот же язык,
+     что и strategy.html: тёмный топбар, hero, светлые карточки-разделы.
+     Без GSAP: только CSS fade-up при загрузке.
+     ========================================================================== */
+  .legal-topbar{ padding:20px 24px; }
+
+  .legal-back{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    letter-spacing:0.04em;
+    color:var(--ink);
+    opacity:0.75;
+    transition:color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .legal-back:hover{ color:var(--cta); opacity:1; transform:translateX(-3px); }
+
+  .legal-hero{
+    max-width:820px;
+    margin:0 auto;
+    padding:40px 24px 64px;
+    text-align:center;
+  }
+
+  .legal-hero h1{
+    font-size:clamp(28px,5.5vw,48px);
+    font-weight:800;
+    line-height:1.1;
+    margin-bottom:16px;
+    animation:legalFadeUp 0.7s ease both;
+  }
+
+  .legal-sub{
+    font-size:clamp(15px,2vw,17px);
+    color:var(--ink);
+    opacity:0.7;
+    max-width:56ch;
+    margin:0 auto;
+    animation:legalFadeUp 0.7s ease 0.1s both;
+  }
+
+  .legal-section{ padding:0 24px 96px; }
+
+  .legal-body{
+    max-width:760px;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+
+  .legal-card{
+    background:#fff;
+    border:1px solid rgba(16,11,6,0.08);
+    border-top:3px solid var(--accent);
+    border-radius:18px;
+    padding:26px 28px;
+    animation:legalFadeUp 0.6s ease both;
+  }
+
+  .legal-body .legal-card:nth-child(1){ animation-delay:0.05s; }
+  .legal-body .legal-card:nth-child(2){ animation-delay:0.1s; }
+  .legal-body .legal-card:nth-child(3){ animation-delay:0.15s; }
+  .legal-body .legal-card:nth-child(4){ animation-delay:0.2s; }
+  .legal-body .legal-card:nth-child(5){ animation-delay:0.25s; }
+  .legal-body .legal-card:nth-child(6){ animation-delay:0.3s; }
+  .legal-body .legal-card:nth-child(7){ animation-delay:0.35s; }
+
+  .legal-card h2{
+    font-family:var(--font-head);
+    font-size:18px;
+    font-weight:700;
+    margin-bottom:10px;
+  }
+
+  .legal-card p, .legal-card li{
+    font-size:15px;
+    line-height:1.65;
+    color:var(--ink);
+    opacity:0.85;
+    margin:0 0 10px;
+  }
+
+  .legal-card p:last-child, .legal-card ul:last-child{ margin-bottom:0; }
+
+  .legal-card ul{ margin:0; padding-left:20px; }
+
+  .legal-card strong{ color:var(--ink); opacity:1; }
+
+  .legal-card a{ color:var(--cta); text-decoration:underline; text-underline-offset:2px; }
+
+  .legal-note{
+    font-size:12.5px;
+    line-height:1.6;
+    opacity:0.6;
+    margin-top:6px;
+    padding-top:10px;
+    border-top:1px dashed rgba(16,11,6,0.16);
+  }
+
+  @keyframes legalFadeUp{
+    from{ opacity:0; transform:translateY(14px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .legal-hero h1, .legal-sub, .legal-card{
+      animation:none !important;
+      opacity:1 !important;
+      transform:none !important;
+    }
+  }
+
+  @media (max-width:767px){
+    .legal-hero{ padding:28px 20px 44px; }
+    .legal-section{ padding:0 20px 64px; }
+    .legal-card{ padding:22px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="legal-topbar">
+  <a href="index.html" class="legal-back mono">← На главную</a>
+</header>
+
+<main>
+  <section class="legal-hero">
+    <h1>Публичная оферта предзаказа</h1>
+    <p class="legal-sub">Условия бронирования банки первой варки через формы на сайте «Баночка».</p>
+  </section>
+
+  <section class="legal-section">
+    <div class="legal-body">
+
+      <article class="legal-card">
+        <h2>1. Предмет оферты</h2>
+        <p>Настоящая оферта регулирует условия бронирования банки продукции первой варки «Баночка» (гуляш говяжий, тушёнка говяжья, тушёнка свиная) через формы предзаказа на сайте banoc4ka.vercel.app.</p>
+      </article>
+
+      <article class="legal-card">
+        <h2>2. Бронирование бесплатно</h2>
+        <p>Отправка формы предзаказа <strong>не требует оплаты и не является договором купли-продажи</strong>. Бронирование — это заявка на резервирование места в очереди первой варки, ни к чему юридически не обязывающая ни одну из сторон до отдельного подтверждения.</p>
+      </article>
+
+      <article class="legal-card">
+        <h2>3. Цена и сроки</h2>
+        <p>Цены, указанные на сайте на момент бронирования, являются ориентировочными («цена предзаказа»). Итоговая цена, точные сроки первой варки и порядок оплаты будут подтверждены отдельно — по контакту, указанному вами в форме, — после расчёта себестоимости первой партии.</p>
+      </article>
+
+      <article class="legal-card">
+        <h2>4. Право отказаться</h2>
+        <p>Вы вправе отказаться от бронирования в любой момент до подтверждения и оплаты заказа, без объяснения причин и без каких-либо последствий — достаточно сообщить об этом по контакту ниже.</p>
+      </article>
+
+      <article class="legal-card">
+        <h2>5. Лист пайщиков</h2>
+        <p>Форма «Встать в лист пайщиков» также не создаёт денежных обязательств. Это выражение намерения войти в кооператив ассоциированным членом после его регистрации — окончательные условия членства будут определены уставом кооператива.</p>
+      </article>
+
+      <article class="legal-card">
+        <h2>6. Контакты</h2>
+        <p>По всем вопросам бронирования пишите на <a href="mailto:hello@banoc4ka.ru">hello@banoc4ka.ru</a>.</p>
+        <p class="legal-note">Плейсхолдер: адрес электронной почты нужно заменить на реальный контакт ИП перед публикацией для реальных пользователей.</p>
+      </article>
+
+      <article class="legal-card">
+        <h2>7. Обработка данных</h2>
+        <p>Оставляя заявку, вы также соглашаетесь с <a href="privacy.html">политикой обработки персональных данных</a>.</p>
+      </article>
+
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>© Баночка, 2026 · Кооператив честной еды · <a href="index.html" class="footer-link">На главную</a> · <a href="privacy.html" class="footer-link">Политика конфиденциальности</a></p>
+</footer>
+
+</body>
+</html>

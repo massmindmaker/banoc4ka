@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Политика обработки персональных данных — Баночка</title>
+<meta name="description" content="Баночка — политика обработки персональных данных: какие данные собираем, зачем, на каком основании и как их защищаем.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+<meta property="og:title" content="Политика обработки персональных данных — Баночка">
+<meta property="og:description" content="Какие данные собирает «Баночка», зачем и как их защищает.">
+<meta property="og:url" content="https://banoc4ka.vercel.app/privacy.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800;900&family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+<style>
+  /* ==========================================================================
+     ЮРИДИЧЕСКИЕ СТРАНИЦЫ (privacy.html / offer.html) — тот же язык,
+     что и strategy.html: тёмный топбар, hero, светлые карточки-разделы.
+     Без GSAP: только CSS fade-up при загрузке.
+     ========================================================================== */
+  .legal-topbar{ padding:20px 24px; }
+
+  .legal-back{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    letter-spacing:0.04em;
+    color:var(--ink);
+    opacity:0.75;
+    transition:color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .legal-back:hover{ color:var(--cta); opacity:1; transform:translateX(-3px); }
+
+  .legal-hero{
+    max-width:820px;
+    margin:0 auto;
+    padding:40px 24px 64px;
+    text-align:center;
+  }
+
+  .legal-hero h1{
+    font-size:clamp(28px,5.5vw,48px);
+    font-weight:800;
+    line-height:1.1;
+    margin-bottom:16px;
+    animation:legalFadeUp 0.7s ease both;
+  }
+
+  .legal-sub{
+    font-size:clamp(15px,2vw,17px);
+    color:var(--ink);
+    opacity:0.7;
+    max-width:56ch;
+    margin:0 auto;
+    animation:legalFadeUp 0.7s ease 0.1s both;
+  }
+
+  .legal-section{ padding:0 24px 96px; }
+
+  .legal-body{
+    max-width:760px;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+
+  .legal-card{
+    background:#fff;
+    border:1px solid rgba(16,11,6,0.08);
+    border-top:3px solid var(--accent);
+    border-radius:18px;
+    padding:26px 28px;
+    animation:legalFadeUp 0.6s ease both;
+  }
+
+  .legal-body .legal-card:nth-child(1){ animation-delay:0.05s; }
+  .legal-body .legal-card:nth-child(2){ animation-delay:0.1s; }
+  .legal-body .legal-card:nth-child(3){ animation-delay:0.15s; }
+  .legal-body .legal-card:nth-child(4){ animation-delay:0.2s; }
+  .legal-body .legal-card:nth-child(5){ animation-delay:0.25s; }
+  .legal-body .legal-card:nth-child(6){ animation-delay:0.3s; }
+  .legal-body .legal-card:nth-child(7){ animation-delay:0.35s; }
+  .legal-body .legal-card:nth-child(8){ animation-delay:0.4s; }
+  .legal-body .legal-card:nth-child(9){ animation-delay:0.45s; }
+
+  .legal-card h2{
+    font-family:var(--font-head);
+    font-size:18px;
+    font-weight:700;
+    margin-bottom:10px;
+  }
+
+  .legal-card p, .legal-card li{
+    font-size:15px;
+    line-height:1.65;
+    color:var(--ink);
+    opacity:0.85;
+    margin:0 0 10px;
+  }
+
+  .legal-card p:last-child, .legal-card ul:last-child{ margin-bottom:0; }
+
+  .legal-card ul{ margin:0; padding-left:20px; }
+
+  .legal-card strong{ color:var(--ink); opacity:1; }
+
+  .legal-card a{ color:var(--cta); text-decoration:underline; text-underline-offset:2px; }
+
+  .legal-note{
+    font-size:12.5px;
+    line-height:1.6;
+    opacity:0.6;
+    margin-top:6px;
+    padding-top:10px;
+    border-top:1px dashed rgba(16,11,6,0.16);
+  }
+
+  @keyframes legalFadeUp{
+    from{ opacity:0; transform:translateY(14px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .legal-hero h1, .legal-sub, .legal-card{
+      animation:none !important;
+      opacity:1 !important;
+      transform:none !important;
+    }
+  }
+
+  @media (max-width:767px){
+    .legal-hero{ padding:28px 20px 44px; }
+    .legal-section{ padding:0 20px 64px; }
+    .legal-card{ padding:22px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="legal-topbar">
+  <a href="index.html" class="legal-back mono">← На главную</a>
+</header>
+
+<main>
+  <section class="legal-hero">
+    <h1>Политика обработки персональных данных</h1>
+    <p class="legal-sub">Как «Баночка» собирает, использует и хранит данные, которые вы оставляете в формах предзаказа и листа пайщиков.</p>
+  </section>
+
+  <section class="legal-section">
+    <div class="legal-body">
+
+      <article class="legal-card">
+        <h2>1. Оператор персональных данных</h2>
+        <p>Обработку персональных данных осуществляет индивидуальный предприниматель — оператор проекта «Баночка» (сайт banoc4ka.vercel.app).</p>
+        <p>Контакт для связи по вопросам обработки персональных данных: <a href="mailto:hello@banoc4ka.ru">hello@banoc4ka.ru</a>.</p>
+        <p class="legal-note">Плейсхолдер: адрес электронной почты нужно заменить на реальный контакт ИП перед публикацией для реальных пользователей.</p>
+      </article>
+
+      <article class="legal-card">
+        <h2>2. Какие данные мы собираем</h2>
+        <p>При заполнении форм на сайте (предзаказ банки, лист пайщиков) мы собираем:</p>
+        <ul>
+          <li>имя;</li>
+          <li>контакт (Telegram или номер телефона);</li>
+          <li>город;</li>
+          <li>роль (потребитель, фермер, цех, склад, логистика).</li>
+        </ul>
+      </article>
+
+      <article class="legal-card">
+        <h2>3. Цель обработки</h2>
+        <p>Данные собираются исключительно для информирования вас о запуске первой варки продукции «Баночка» и о формировании потребительского кооператива: сроки, условия предзаказа, приглашение вступить в лист пайщиков.</p>
+      </article>
+
+      <article class="legal-card">
+        <h2>4. Правовое основание</h2>
+        <p>Обработка осуществляется на основании вашего согласия, которое вы даёте, отмечая соответствующий чекбокс при отправке формы (ст. 9 Федерального закона № 152-ФЗ «О персональных данных»).</p>
+      </article>
+
+      <article class="legal-card">
+        <h2>5. Срок хранения</h2>
+        <p>Данные хранятся до момента отзыва согласия субъектом персональных данных. После отзыва данные удаляются в разумный срок, не превышающий 30 дней.</p>
+      </article>
+
+      <article class="legal-card">
+        <h2>6. Ваши права</h2>
+        <p>Вы имеете право:</p>
+        <ul>
+          <li>получить информацию о том, какие ваши данные обрабатываются;</li>
+          <li>потребовать уточнения, блокирования или удаления данных, если они неполны, устарели или недостоверны;</li>
+          <li>отозвать согласие на обработку в любой момент;</li>
+          <li>обратиться с жалобой в уполномоченный орган по защите прав субъектов персональных данных (Роскомнадзор).</li>
+        </ul>
+      </article>
+
+      <article class="legal-card">
+        <h2>7. Как отозвать согласие</h2>
+        <p>Чтобы отозвать согласие на обработку персональных данных, напишите на <a href="mailto:hello@banoc4ka.ru">hello@banoc4ka.ru</a> с темой «Отзыв согласия» и укажите имя и контакт, которые вы оставляли в форме.</p>
+      </article>
+
+      <article class="legal-card">
+        <h2>8. Передача третьим лицам</h2>
+        <p>Мы не передаём и не продаём ваши персональные данные третьим лицам. Данные используются исключительно командой проекта «Баночка» для целей, указанных в разделе 3.</p>
+      </article>
+
+      <article class="legal-card">
+        <h2>9. Где хранятся данные</h2>
+        <p>Технически данные хранятся на серверах облачной платформы Vercel (Vercel Blob Storage). Обработка происходит на инфраструктуре Vercel Inc.</p>
+      </article>
+
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>© Баночка, 2026 · Кооператив честной еды · <a href="index.html" class="footer-link">На главную</a> · <a href="offer.html" class="footer-link">Оферта</a></p>
+</footer>
+
+</body>
+</html>

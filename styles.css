@@ -730,6 +730,53 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
   border:none;
 }
 
+.reserve-form button:disabled{
+  opacity:0.45;
+  cursor:not-allowed;
+  transform:none !important;
+}
+
+/* ---------- Honeypot: скрыт от людей, виден ботам, которые заполняют всё подряд ---------- */
+.hp-field{
+  position:absolute;
+  left:-9999px;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+}
+
+/* ---------- Согласие на обработку ПДн ---------- */
+.consent-row{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  margin-bottom:16px;
+  font-size:13px;
+  line-height:1.5;
+  color:var(--ink);
+  opacity:0.85;
+  cursor:pointer;
+  text-align:left;
+}
+
+.consent-row input[type="checkbox"]{
+  flex:0 0 auto;
+  margin-top:3px;
+  width:16px;
+  height:16px;
+  accent-color:var(--cta);
+  cursor:pointer;
+}
+
+.consent-row a{
+  color:var(--cta);
+  text-decoration:underline;
+  text-underline-offset:2px;
+}
+
+.members-card .consent-row{ color:var(--bg); opacity:0.85; }
+.members-card .consent-row a{ color:var(--accent); }
+
 .reserve-success{
   font-family:var(--font-body);
   font-size:17px;

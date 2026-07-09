@@ -208,7 +208,15 @@
         <div class="reserve-form-row">
           <input type="text" name="city" placeholder="Город" required autocomplete="address-level2">
         </div>
-        <button type="submit" class="btn btn-primary">Забронировать</button>
+        <div class="hp-field" aria-hidden="true">
+          <label for="preorder-website">Website</label>
+          <input type="text" id="preorder-website" name="website" tabindex="-1" autocomplete="off">
+        </div>
+        <label class="consent-row">
+          <input type="checkbox" name="consent" class="consent-checkbox" required>
+          <span>Согласен на <a href="privacy.html" target="_blank" rel="noopener">обработку персональных данных</a> и <a href="offer.html" target="_blank" rel="noopener">оферту</a></span>
+        </label>
+        <button type="submit" class="btn btn-primary" disabled>Забронировать</button>
       </form>
     </div>
   </section>
@@ -280,7 +288,15 @@
             <input type="text" name="name" placeholder="Имя" required autocomplete="name">
             <input type="text" name="contact" placeholder="Telegram или телефон" required autocomplete="tel">
           </div>
-          <button type="submit" class="btn btn-primary">Встать в лист пайщиков</button>
+          <div class="hp-field" aria-hidden="true">
+            <label for="pai-website">Website</label>
+            <input type="text" id="pai-website" name="website" tabindex="-1" autocomplete="off">
+          </div>
+          <label class="consent-row">
+            <input type="checkbox" name="consent" class="consent-checkbox" required>
+            <span>Согласен на <a href="privacy.html" target="_blank" rel="noopener">обработку персональных данных</a> и <a href="offer.html" target="_blank" rel="noopener">оферту</a></span>
+          </label>
+          <button type="submit" class="btn btn-primary" disabled>Встать в лист пайщиков</button>
         </form>
       </div>
     </div>
@@ -293,7 +309,7 @@
   </section>
 
   <footer class="site-footer">
-    <p>© Баночка, 2026 · Кооператив честной еды · Контент: Studio 223 × PinGlass · <a href="strategy.html" class="footer-link">Стратегия</a></p>
+    <p>© Баночка, 2026 · Кооператив честной еды · Контент: Studio 223 × PinGlass · <a href="strategy.html" class="footer-link">Стратегия</a> · <a href="privacy.html" class="footer-link">Политика конфиденциальности</a> · <a href="offer.html" class="footer-link">Оферта</a></p>
     <p class="mono footer-hud">ШИРОТА 55.75 · ДОЛГОТА 37.61 · ВЫСОТА ПОЛКИ 1.4 М</p>
   </footer>
 
