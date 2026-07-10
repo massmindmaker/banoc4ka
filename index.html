@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Баночка — своё, в банке</title>
-<meta name="description" content="Кооператив честной еды. Фермеры, цех и покупатели — одна команда. Первая варка — по предзаказу.">
+<meta name="description" content="Кооператив честной еды. Фермеры, цех и покупатели — один круг, а не цепочка поставщиков. Собираем кооператив для первой варки.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
 <meta property="og:title" content="Баночка — своё, в банке">
-<meta property="og:description" content="Кооператив честной еды. Фермеры, цех и покупатели — одна команда. Первая варка — по предзаказу.">
+<meta property="og:description" content="Кооператив честной еды. Фермеры, цех и покупатели — один круг, а не цепочка поставщиков. Собираем кооператив для первой варки.">
 <meta property="og:image" content="/assets/hero-soft-B.png">
 <meta property="og:url" content="https://banoc4ka.vercel.app/">
 <meta property="og:type" content="website">
@@ -39,10 +39,10 @@
     <span class="scale-dot" id="scale-dot"></span>
   </div>
   <ol class="scale-marks">
-    <li class="scale-mark" data-mark="farm"><span class="scale-mark-dot"></span><span class="scale-mark-label mono">ФЕРМА</span></li>
+    <li class="scale-mark" data-mark="you"><span class="scale-mark-dot"></span><span class="scale-mark-label mono">ТЫ</span></li>
+    <li class="scale-mark" data-mark="farmer"><span class="scale-mark-dot"></span><span class="scale-mark-label mono">ФЕРМЕР</span></li>
     <li class="scale-mark" data-mark="workshop"><span class="scale-mark-dot"></span><span class="scale-mark-label mono">ЦЕХ</span></li>
-    <li class="scale-mark" data-mark="lab"><span class="scale-mark-dot"></span><span class="scale-mark-label mono">ЛАБОРАТОРИЯ</span></li>
-    <li class="scale-mark" data-mark="shelf"><span class="scale-mark-dot"></span><span class="scale-mark-label mono">ПОЛКА</span></li>
+    <li class="scale-mark" data-mark="coop"><span class="scale-mark-dot"></span><span class="scale-mark-label mono">КООПЕРАТИВ</span></li>
   </ol>
 </aside>
 
@@ -56,11 +56,11 @@
       <div class="hero-scrim"></div>
 
       <div class="hero-content">
-        <div class="hud-line mono" id="hero-hud">ВАРКА №1 · ОКТЯБРЬ 2026 · 500 БАНОК</div>
+        <div class="hud-line mono" id="hero-hud">ВАРКА №1 · СОБИРАЕМ КООПЕРАТИВ</div>
         <h1 class="hero-title" id="hero-title" aria-label="СВОЁ. В БАНКЕ.">СВОЁ.<br>В БАНКЕ.</h1>
-        <p class="hero-sub">Кооператив честной еды. Первая варка — по предзаказу.</p>
+        <p class="hero-sub">Кооператив честной еды. Собираем людей на первую варку.</p>
         <div class="hero-cta">
-          <a href="#preorder" class="btn btn-primary" data-scroll-to="#preorder">Забронировать банку</a>
+          <a href="#preorder" class="btn btn-primary" data-scroll-to="#preorder">Оставить заявку</a>
           <a href="#" class="btn btn-ghost btn-ghost-stub">Телеграм-канал</a>
         </div>
       </div>
@@ -101,30 +101,76 @@
     </div>
   </section>
 
-  <!-- ===================== 3. ПУТЬ ЕДЫ ===================== -->
-  <section class="chapter-wrap chapter-path-wrap" id="path-wrap">
-    <div class="chapter-pin chapter-path">
+  <!-- ===================== 3. КРУГ, А НЕ ЦЕПОЧКА ===================== -->
+  <section class="chapter-section chapter-circle" id="circle-wrap">
+    <div class="circle-inner">
+      <h2 class="chapter-eyebrow mono">ГЛАВА 3 · КООПЕРАТИВ</h2>
+      <h2 class="circle-title reveal">КРУГ, А НЕ ЦЕПОЧКА</h2>
+      <p class="circle-sub reveal">В кооперативе никто не крайний. Каждый что-то даёт — и каждый что-то получает.</p>
 
-      <div class="path-bg-stack">
-        <div class="path-bg" data-stage="farm" data-bg="farm"></div>
-        <div class="path-bg" data-stage="workshop" data-bg="workshop"></div>
-        <div class="path-bg" data-stage="lab" data-bg="lab"></div>
-        <div class="path-bg" data-stage="shelf" data-bg="shelf"></div>
+      <div class="circle-grid">
+        <article class="circle-card reveal" data-stage="you" data-bg="shelf">
+          <div class="circle-card-scrim"></div>
+          <h3>ТЫ</h3>
+          <p><span class="circle-label mono">Даёшь</span>спрос и доверие.</p>
+          <p><span class="circle-label mono">Получаешь</span>честную еду и цену без наценки посредника.</p>
+        </article>
+        <article class="circle-card reveal" data-stage="farmer" data-bg="farm">
+          <div class="circle-card-scrim"></div>
+          <h3>ФЕРМЕР</h3>
+          <p><span class="circle-label mono">Даёт</span>мясо, за которое не стыдно.</p>
+          <p><span class="circle-label mono">Получает</span>гарантированный сбыт и долю прибыли.</p>
+        </article>
+        <article class="circle-card reveal" data-stage="workshop" data-bg="workshop">
+          <div class="circle-card-scrim"></div>
+          <h3>ЦЕХ</h3>
+          <p><span class="circle-label mono">Даёт</span>автоклав, ХАССП, руки.</p>
+          <p><span class="circle-label mono">Получает</span>загрузку без простоев.</p>
+        </article>
+        <article class="circle-card circle-card-coop reveal" data-stage="coop">
+          <h3>КООПЕРАТИВ</h3>
+          <p><span class="circle-label mono">Даёт</span>правила, контроль, бренд.</p>
+          <p>Существует, пока честен.</p>
+        </article>
       </div>
-      <div class="path-scrim"></div>
 
-      <h2 class="path-title">ОТ ФЕРМЫ ДО БАНКИ — 4 ШАГА, ВСЕ ПРОЗРАЧНЫ</h2>
-
-      <div class="path-fact-card" id="path-fact">
-        <div class="path-fact mono active" data-stage="farm">ФЕРМА · эВСД «Меркурий» на каждую партию сырья</div>
-        <div class="path-fact mono" data-stage="workshop">ЦЕХ · формула стерилизации: время × температура × давление</div>
-        <div class="path-fact mono" data-stage="lab">ЛАБОРАТОРИЯ · лабораторный контроль каждой варки</div>
-        <div class="path-fact mono" data-stage="shelf">ПОЛКА · DataMatrix «Честный ЗНАК» на каждой крышке</div>
-      </div>
+      <p class="circle-proof mono reveal">Каждая партия проходит лабораторный контроль. Автоклав, ХАССП, электронные ветеринарные документы, код на крышке.</p>
     </div>
   </section>
 
-  <!-- ===================== 4. МАНИФЕСТ ===================== -->
+  <!-- ===================== 4. ЧТО БУДЕТ В БАНКЕ ===================== -->
+  <section class="chapter-section chapter-dishes" id="dishes-wrap">
+    <div class="dishes-media">
+      <div class="dishes-media-img" data-bg="burst"></div>
+    </div>
+    <div class="dishes-inner">
+      <h2 class="chapter-eyebrow mono">ГЛАВА 4 · АССОРТИМЕНТ</h2>
+      <h2 class="dishes-title reveal">ЧТО БУДЕТ В БАНКЕ</h2>
+
+      <div class="dishes-group reveal">
+        <h3 class="dishes-group-title mono">ЗАГОТОВКИ</h3>
+        <ol class="dishes-list">
+          <li><span class="dishes-num mono">01</span><div><strong>Тушёнка говяжья</strong> — флагман. Крупные куски, соль, лавр, перец.</div></li>
+          <li><span class="dishes-num mono">02</span><div><strong>Тушёнка свиная (шея)</strong> — нежное волокно, топлёный жир.</div></li>
+          <li><span class="dishes-num mono">03</span><div><strong>Фарш-консерв «Домашняя котлета»</strong> — открыл, подогрел, как в детстве.</div></li>
+          <li><span class="dishes-num mono">04</span><div><strong>Топлёное мясо в жире</strong> — старый способ хранения, мясо тает.</div></li>
+        </ol>
+      </div>
+
+      <div class="dishes-group reveal">
+        <h3 class="dishes-group-title mono">ГОТОВЫЕ БЛЮДА</h3>
+        <ol class="dishes-list" start="5">
+          <li><span class="dishes-num mono">05</span><div><strong>Говяжьи котлеты в желе</strong> — тёмное мясо в янтарном желе.</div></li>
+          <li><span class="dishes-num mono">06</span><div><strong>Овощной говяжий гуляш</strong> — с овощами, реторт-пакет или банка.</div></li>
+          <li><span class="dishes-num mono">07</span><div><strong>Гуляш-концентрат «Обед за 5 минут»</strong> — брусок в кипяток, густой суп.</div></li>
+        </ol>
+      </div>
+
+      <p class="dishes-disclaimer reveal">Составы и граммовки утвердит технолог цеха. Цены появятся, когда будет что продавать.</p>
+    </div>
+  </section>
+
+  <!-- ===================== 5. МАНИФЕСТ ===================== -->
   <section class="chapter-wrap chapter-manifesto-wrap dark" id="manifesto-wrap">
     <div class="chapter-pin chapter-manifesto">
       <div class="manifesto-lines">
@@ -135,41 +181,22 @@
     </div>
   </section>
 
-  <!-- ===================== 5. ПРЕДЗАКАЗ ===================== -->
+  <!-- ===================== 6. ЗАЯВКА ===================== -->
   <section class="chapter-section chapter-preorder" id="preorder">
-    <div class="bg-layer" data-bg="burst"></div>
-    <div class="preorder-scrim"></div>
 
     <div class="preorder-inner">
-      <h2 class="chapter-eyebrow mono">ГЛАВА 5 · ПРЕДЗАКАЗ</h2>
+      <h2 class="chapter-eyebrow mono">ГЛАВА 6 · ЗАЯВКА</h2>
+      <h2 class="preorder-title">ОСТАВЬТЕ КОНТАКТ</h2>
+      <p class="preorder-sub">Мы напишем, когда варка станет реальной.</p>
+
       <div class="preorder-counter">
-        <span class="mono preorder-counter-label">ЗАБРОНИРОВАНО</span>
         <span class="preorder-counter-number" id="preorder-count" data-target="137">0</span>
-        <span class="mono preorder-counter-label">ИЗ 500 БАНОК</span>
+        <span class="mono preorder-counter-label">ЧЕЛОВЕК УЖЕ ЖДУТ ПЕРВУЮ ВАРКУ</span>
       </div>
       <div class="preorder-progress">
         <div class="preorder-progress-fill" id="preorder-progress-fill"></div>
       </div>
-
-      <div class="sku-grid">
-        <article class="sku-card">
-          <h3>Гуляш говяжий</h3>
-          <div class="sku-price">890 ₽</div>
-          <div class="mono sku-tag">цена предзаказа</div>
-        </article>
-        <article class="sku-card">
-          <h3>Тушёнка говяжья</h3>
-          <div class="sku-price">790 ₽</div>
-          <div class="mono sku-tag">цена предзаказа</div>
-        </article>
-        <article class="sku-card">
-          <h3>Тушёнка свиная</h3>
-          <div class="sku-price">690 ₽</div>
-          <div class="mono sku-tag">цена предзаказа</div>
-        </article>
-      </div>
-
-      <p class="disclaimer">Финальные цены — после расчёта первой партии.</p>
+      <p class="mono preorder-progress-caption">Соберём 500 — запустим варку</p>
 
       <form class="reserve-form" id="preorder-form" data-storage-key="banochka_preorder" data-range-from="138" data-range-to="160">
         <fieldset class="role-select" data-role-select>
@@ -208,17 +235,17 @@
         </div>
         <label class="consent-row">
           <input type="checkbox" name="consent" class="consent-checkbox" required>
-          <span>Согласен на <a href="privacy.html" target="_blank" rel="noopener">обработку персональных данных</a> и <a href="offer.html" target="_blank" rel="noopener">оферту</a></span>
+          <span>Согласен на <a href="privacy.html" target="_blank" rel="noopener">обработку персональных данных</a> и <a href="offer.html" target="_blank" rel="noopener">условия сбора контактов</a></span>
         </label>
-        <button type="submit" class="btn btn-primary" disabled>Забронировать</button>
+        <button type="submit" class="btn btn-primary" disabled>Оставить заявку</button>
       </form>
     </div>
   </section>
 
-  <!-- ===================== 6. МИССИЯ + КАРТА ЗАЯВОК ===================== -->
+  <!-- ===================== 7. МИССИЯ + КАРТА ЗАЯВОК ===================== -->
   <section class="chapter-section chapter-mission dark" id="mission-wrap">
     <div class="mission-inner">
-      <h2 class="chapter-eyebrow mono">ГЛАВА 6 · МИССИЯ</h2>
+      <h2 class="chapter-eyebrow mono">ГЛАВА 7 · МИССИЯ</h2>
       <h2 class="mission-title reveal">КООПЕРАТИВ УЖЕ СОБИРАЕТСЯ</h2>
       <p class="mission-copy reveal">Наша миссия — поддержать тех, кто кормит страну: фермеров и небольшие производства. И дать людям честную еду по справедливой цене — в любые времена.</p>
       <p class="mission-sub reveal">Мы приглашаем не только едоков. Кооперативу нужны все звенья цепи.</p>
@@ -268,7 +295,7 @@
     </div>
   </section>
 
-  <!-- ===================== 7. ПАЙЩИКИ + ФУТЕР ===================== -->
+  <!-- ===================== 8. ПАЙЩИКИ + ФУТЕР ===================== -->
   <section class="chapter-section chapter-members" id="members">
     <div class="members-inner">
       <div class="members-card">
@@ -285,7 +312,7 @@
           </div>
           <label class="consent-row">
             <input type="checkbox" name="consent" class="consent-checkbox" required>
-            <span>Согласен на <a href="privacy.html" target="_blank" rel="noopener">обработку персональных данных</a> и <a href="offer.html" target="_blank" rel="noopener">оферту</a></span>
+            <span>Согласен на <a href="privacy.html" target="_blank" rel="noopener">обработку персональных данных</a> и <a href="offer.html" target="_blank" rel="noopener">условия сбора контактов</a></span>
           </label>
           <button type="submit" class="btn btn-primary" disabled>Встать в лист пайщиков</button>
         </form>
@@ -294,7 +321,7 @@
   </section>
 
   <footer class="site-footer">
-    <p>© Баночка, 2026 · Кооператив честной еды · Контент: Studio 223 × PinGlass · <a href="strategy.html" class="footer-link">Стратегия</a> · <a href="privacy.html" class="footer-link">Политика конфиденциальности</a> · <a href="offer.html" class="footer-link">Оферта</a></p>
+    <p>© Баночка, 2026 · Кооператив честной еды · Контент: Studio 223 × PinGlass · <a href="strategy.html" class="footer-link">Стратегия</a> · <a href="privacy.html" class="footer-link">Политика конфиденциальности</a> · <a href="offer.html" class="footer-link">Условия</a></p>
     <p class="mono footer-hud">ШИРОТА 55.75 · ДОЛГОТА 37.61 · ВЫСОТА ПОЛКИ 1.4 М</p>
   </footer>
 

@@ -472,67 +472,205 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
 .hud-callout-3{ bottom:18%; left:10vw; }
 
 /* ==========================================================================
-   3. ПУТЬ ЕДЫ
+   3. КРУГ, А НЕ ЦЕПОЧКА
    ========================================================================== */
-.chapter-path-wrap{ height:400vh; }
-
-@media (max-width:767px){
-  .chapter-path-wrap{ height:150vh; }
+.chapter-circle{
+  background:var(--bg);
 }
 
-.chapter-path{ background:var(--ink); }
-
-.path-bg-stack{
-  position:absolute; inset:0;
+.circle-inner{
+  max-width:1200px;
+  margin:0 auto;
 }
 
-.path-bg{
-  position:absolute; inset:0;
-  opacity:0;
-  clip-path:inset(100% 0 0 0);
-  will-change:clip-path, opacity;
+.circle-title{
+  font-size:clamp(30px,5vw,58px);
+  font-weight:800;
+  margin-bottom:16px;
+  max-width:18ch;
 }
 
-.path-bg[data-stage="farm"]{ opacity:1; clip-path:inset(0 0 0 0); }
-
-.path-scrim{
-  position:absolute; inset:0;
-  background:linear-gradient(180deg, rgba(16,11,6,0.55), rgba(16,11,6,0.75));
+.circle-sub{
+  font-size:clamp(16px,2vw,20px);
+  max-width:56ch;
+  opacity:0.75;
+  margin-bottom:48px;
 }
 
-.path-title{
-  position:absolute;
-  top:14%;
-  left:6vw;
-  right:6vw;
-  z-index:2;
+.circle-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:20px;
+  margin-bottom:40px;
+}
+
+.circle-card{
+  position:relative;
+  overflow:hidden;
+  min-height:320px;
+  border-radius:20px;
+  padding:24px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  gap:10px;
   color:var(--bg);
-  font-size:clamp(26px,4.2vw,52px);
-  max-width:900px;
-  line-height:1.08;
 }
 
-.path-fact-card{
-  position:absolute;
-  bottom:14%;
-  left:6vw;
-  z-index:2;
+.circle-card-scrim{
+  position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(16,11,6,0.15) 0%, rgba(16,11,6,0.8) 100%);
+  z-index:0;
+}
+
+.circle-card h3,
+.circle-card p{
+  position:relative;
+  z-index:1;
+  margin:0;
+}
+
+.circle-card h3{
+  font-family:var(--font-head);
+  font-size:20px;
+  letter-spacing:0.04em;
+  color:var(--bg);
+  margin-bottom:4px;
+}
+
+.circle-card p{
+  font-size:14px;
+  line-height:1.5;
+  color:rgba(245,228,199,0.92);
+}
+
+.circle-label{
+  color:var(--accent);
+  font-size:11px;
+  letter-spacing:0.06em;
+  display:block;
+}
+
+.circle-card-coop{
+  background:linear-gradient(160deg, #100B06 0%, #1C1208 100%);
+  justify-content:center;
+}
+
+.circle-card-coop h3{ color:var(--accent); }
+
+.circle-proof{
+  font-size:13px;
+  line-height:1.6;
   max-width:640px;
-}
-
-.path-fact{
-  display:none;
-  color:var(--bg);
-  font-size:clamp(14px,1.6vw,18px);
-  padding:14px 20px;
+  padding:16px 20px;
   border-left:2px solid var(--accent);
-  background:rgba(245,228,199,0.06);
+  background:rgba(16,11,6,0.04);
+  opacity:0.85;
 }
-
-.path-fact.active{ display:block; }
 
 /* ==========================================================================
-   4. МАНИФЕСТ
+   4. ЧТО БУДЕТ В БАНКЕ
+   ========================================================================== */
+.chapter-dishes{
+  position:relative;
+  background:var(--bg);
+  padding:0;
+  display:flex;
+  flex-direction:row;
+  align-items:stretch;
+  min-height:100vh;
+  overflow:hidden;
+}
+
+.dishes-media{
+  order:2;
+  flex:1 1 50%;
+  position:relative;
+  overflow:hidden;
+  min-height:100vh;
+}
+
+.dishes-media-img{
+  position:absolute;
+  left:0; right:0;
+  top:-40px; bottom:-40px;
+  background-size:cover;
+  background-position:center;
+  will-change:transform;
+}
+
+.dishes-inner{
+  order:1;
+  flex:1 1 50%;
+  padding:100px 5vw;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+.dishes-title{
+  font-size:clamp(28px,4.4vw,50px);
+  font-weight:800;
+  margin-bottom:32px;
+  max-width:16ch;
+}
+
+.dishes-group{ margin-bottom:32px; }
+
+.dishes-group-title{
+  font-size:12px;
+  letter-spacing:0.1em;
+  color:var(--cta);
+  margin-bottom:14px;
+}
+
+.dishes-list{
+  list-style:none;
+  margin:0; padding:0;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.dishes-list li{
+  display:flex;
+  gap:14px;
+  align-items:baseline;
+}
+
+.dishes-num{
+  color:var(--accent);
+  font-size:13px;
+  flex:none;
+  width:24px;
+}
+
+.dishes-list strong{
+  font-family:var(--font-body);
+  font-weight:700;
+}
+
+.dishes-list div{
+  font-size:14.5px;
+  line-height:1.5;
+  opacity:0.85;
+}
+
+.dishes-disclaimer{
+  font-size:11.5px;
+  opacity:0.5;
+  margin-top:8px;
+  max-width:52ch;
+}
+
+@media (max-width:767px){
+  .chapter-dishes{ flex-direction:column; min-height:0; }
+  .dishes-media{ order:-1; flex:none; width:100%; aspect-ratio:16/9; min-height:0; }
+  .dishes-inner{ padding:48px 20px; }
+}
+
+/* ==========================================================================
+   5. МАНИФЕСТ
    ========================================================================== */
 .chapter-manifesto-wrap{ height:300vh; }
 
@@ -568,22 +706,11 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
 }
 
 /* ==========================================================================
-   5. ПРЕДЗАКАЗ
+   6. ЗАЯВКА
    ========================================================================== */
 .chapter-preorder{
   background:var(--bg);
   text-align:center;
-}
-
-.chapter-preorder .bg-layer{
-  position:absolute; inset:0;
-  z-index:0;
-}
-
-.preorder-scrim{
-  position:absolute; inset:0;
-  background:rgba(245,228,199,0.85);
-  z-index:0;
 }
 
 .preorder-inner{
@@ -591,6 +718,19 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
   z-index:1;
   max-width:960px;
   margin:0 auto;
+}
+
+.preorder-title{
+  font-size:clamp(28px,4.4vw,50px);
+  font-weight:800;
+  margin-bottom:14px;
+}
+
+.preorder-sub{
+  font-size:clamp(15px,1.8vw,18px);
+  opacity:0.75;
+  max-width:52ch;
+  margin:0 auto 48px;
 }
 
 .preorder-counter{
@@ -622,7 +762,7 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
   height:6px;
   border-radius:999px;
   background:rgba(16,11,6,0.12);
-  margin:0 auto 56px;
+  margin:0 auto;
   overflow:hidden;
 }
 
@@ -634,46 +774,11 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
   transition:width 1.2s cubic-bezier(0.16,1,0.3,1);
 }
 
-.sku-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:20px;
-  margin-bottom:24px;
-  text-align:left;
-}
-
-.sku-card{
-  background:#fff;
-  border:1px solid rgba(16,11,6,0.08);
-  border-radius:18px;
-  padding:28px 24px;
-}
-
-.sku-card h3{
-  font-family:var(--font-body);
-  font-weight:700;
-  font-size:18px;
-  margin-bottom:12px;
-}
-
-.sku-price{
-  font-family:var(--font-head);
-  font-size:28px;
-  font-weight:700;
-  color:var(--accent);
-  margin-bottom:10px;
-}
-
-.sku-tag{
-  font-size:11px;
-  letter-spacing:0.05em;
-  color:var(--cta);
-}
-
-.disclaimer{
+.preorder-progress-caption{
   font-size:12px;
-  opacity:0.55;
-  margin-bottom:36px;
+  letter-spacing:0.04em;
+  opacity:0.6;
+  margin:14px 0 40px;
 }
 
 .reserve-form{
@@ -819,7 +924,7 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
 }
 
 /* ==========================================================================
-   6. МИССИЯ + КАРТА ЗАЯВОК (обычный скролл, без пина)
+   7. МИССИЯ + КАРТА ЗАЯВОК (обычный скролл, без пина)
    ========================================================================== */
 .chapter-mission{
   background:linear-gradient(160deg, var(--ink) 0%, var(--ink-2) 85%);
@@ -991,7 +1096,7 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
 }
 
 /* ==========================================================================
-   7. ПАЙЩИКИ + ФУТЕР
+   8. ПАЙЩИКИ + ФУТЕР
    ========================================================================== */
 .chapter-members{
   background:linear-gradient(180deg, #EBD9B4 0%, #F5E4C7 25%);
@@ -1056,10 +1161,12 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
 @media (min-width:768px){
   .hero-content{ padding-right:max(6vw,160px); }
   .hud-callout-2{ right:max(8vw,160px); }
-  .path-title{ right:max(6vw,160px); }
-  .path-fact-card{ max-width:min(640px, calc(100% - 6vw - 160px)); }
   .manifesto-lines{ padding-right:max(6vw,160px); }
   .chapter-section{ padding-right:160px; }
+  /* Глава 4 — фото занимает правую половину экрана целиком, поверх шкалы
+     прослеживаемости (она полупрозрачна и не мешает восприятию картинки),
+     поэтому исключаем её из общего резерва под #scale. */
+  .chapter-section.chapter-dishes{ padding-right:0; }
 }
 
 /* ==========================================================================
@@ -1067,7 +1174,6 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
    ========================================================================== */
 body.reduced-motion .chapter-hero-wrap,
 body.reduced-motion .chapter-jar-wrap,
-body.reduced-motion .chapter-path-wrap,
 body.reduced-motion .chapter-manifesto-wrap{
   height:auto;
 }
@@ -1084,11 +1190,6 @@ body.reduced-motion .hero-title .word{
 }
 
 body.reduced-motion .hero-video{ display:none; }
-
-body.reduced-motion .path-bg{ opacity:0; clip-path:none; display:none; }
-body.reduced-motion .path-bg[data-stage="farm"]{ opacity:1; display:block; }
-body.reduced-motion .path-fact{ display:none; }
-body.reduced-motion .path-fact.active{ display:block; }
 
 body.reduced-motion .manifesto-line{
   opacity:1 !important;

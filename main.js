@@ -7,7 +7,7 @@
 
   var ASSET_NAMES = [
     "hero-sky",
-    "farm","workshop","lab","shelf",
+    "farm","workshop","shelf",
     "burst"
   ];
 
@@ -29,7 +29,6 @@
     "hero-sky":              "hero-soft-B",
     "farm":                  "SB-04",
     "workshop":              "SB-05",
-    "lab":                   "lab",
     "shelf":                 "SB-07",
     "burst":                 "SB-09"
   };
@@ -38,7 +37,6 @@
     "hero-sky":              "png",
     "farm":                  "png",
     "workshop":              "png",
-    "lab":                   "jpg",
     "shelf":                 "png",
     "burst":                 "png"
   };
@@ -397,7 +395,7 @@
       });
     });
 
-    /* ---------- ГЛАВА 6: карточки-приглашения → скролл к форме + предвыбор роли ---------- */
+    /* ---------- ГЛАВА 7: карточки-приглашения → скролл к форме + предвыбор роли ---------- */
     document.querySelectorAll("[data-invite-role]").forEach(function(btn){
       btn.addEventListener("click", function(){
         var role = btn.getAttribute("data-invite-role");
@@ -413,7 +411,7 @@
       });
     });
 
-    /* ---------- ГЛАВА 6: карта заявок — инициализация независима от GSAP ---------- */
+    /* ---------- ГЛАВА 7: карта заявок — инициализация независима от GSAP ---------- */
     initMap();
 
     /* ---------- HERO: заголовок появляется по словам (не по буквам),
@@ -459,6 +457,8 @@
       // Пины отключены глобально через body.reduced-motion (CSS). JS-сцены ниже пропускаем.
       initCounters();
       initForms();
+      initReveal("#circle-wrap", true);
+      initReveal("#dishes-wrap", true);
       initReveal("#mission-wrap", true);
       initReveal("#members", true);
       return;
@@ -529,72 +529,38 @@
       gsap.to(el, { opacity: active ? 1 : 0, y: active ? 0 : 12, duration:0.3, ease:"power1.out", overwrite:"auto" });
     }
 
-    /* ---------- ГЛАВА 3: путь еды — clip-path wipe по четвертям + факты + шкала ---------- */
-    var pathBgs = {
-      farm: document.querySelector('.path-bg[data-stage="farm"]'),
-      workshop: document.querySelector('.path-bg[data-stage="workshop"]'),
-      lab: document.querySelector('.path-bg[data-stage="lab"]'),
-      shelf: document.querySelector('.path-bg[data-stage="shelf"]')
-    };
-    var pathFacts = {
-      farm: document.querySelector('.path-fact[data-stage="farm"]'),
-      workshop: document.querySelector('.path-fact[data-stage="workshop"]'),
-      lab: document.querySelector('.path-fact[data-stage="lab"]'),
-      shelf: document.querySelector('.path-fact[data-stage="shelf"]')
-    };
-    var scaleMarks = {
-      farm: document.querySelector('.scale-mark[data-mark="farm"]'),
-      workshop: document.querySelector('.scale-mark[data-mark="workshop"]'),
-      lab: document.querySelector('.scale-mark[data-mark="lab"]'),
-      shelf: document.querySelector('.scale-mark[data-mark="shelf"]')
-    };
-
-    var stageOrder = ["farm","workshop","lab","shelf"];
-
-    ScrollTrigger.create({
-      trigger: "#path-wrap",
-      start: "top top",
-      end: "bottom bottom",
-      pin: ".chapter-path",
-      scrub: true,
-      onUpdate: function(self){
-        var p = self.progress;
-        var quarter = Math.min(3, Math.floor(p * 4));
-        var activeStage = stageOrder[quarter];
-
-        stageOrder.forEach(function(stage, i){
-          var bg = pathBgs[stage];
-          if (!bg) return;
-          if (i < quarter){
-            gsap.set(bg, { opacity:1, clipPath:"inset(0 0 0 0)" });
-          } else if (i === quarter){
-            var local = clamp01((p * 4) - quarter);
-            gsap.set(bg, { opacity:1, clipPath:"inset(" + (100 - local*100) + "% 0 0 0)" });
-          } else {
-            gsap.set(bg, { opacity:0, clipPath:"inset(100% 0 0 0)" });
-          }
-        });
-
-        stageOrder.forEach(function(stage){
-          var fact = pathFacts[stage];
-          if (fact) fact.classList.toggle("active", stage === activeStage);
-          var mark = scaleMarks[stage];
-          if (mark) mark.classList.toggle("active", stage === activeStage);
-        });
-      },
-      onLeaveBack: function(){
-        stageOrder.forEach(function(stage){
-          var mark = scaleMarks[stage];
-          if (mark) mark.classList.remove("active");
-        });
-      },
-      onLeave: function(){
-        stageOrder.forEach(function(stage){
-          var mark = scaleMarks[stage];
-          if (mark) mark.classList.remove("active");
-        });
-      }
+    /* ---------- ГЛАВА 3: круг — обычный скролл (без пина), карточки reveal +
+       подсветка шкалы прослеживаемости по мере прохождения каждой карточки ---------- */
+    var circleStageOrder = ["you","farmer","workshop","coop"];
+    circleStageOrder.forEach(function(stage){
+      var card = document.querySelector('.circle-card[data-stage="' + stage + '"]');
+      var mark = document.querySelector('.scale-mark[data-mark="' + stage + '"]');
+      if (!card || !mark) return;
+      ScrollTrigger.create({
+        trigger: card,
+        start: "top 60%",
+        end: "bottom 40%",
+        onEnter: function(){ mark.classList.add("active"); },
+        onEnterBack: function(){ mark.classList.add("active"); },
+        onLeave: function(){ mark.classList.remove("active"); },
+        onLeaveBack: function(){ mark.classList.remove("active"); }
+      });
     });
+
+    /* ---------- ГЛАВА 4: что будет в банке — лёгкий параллакс картинки левитации ---------- */
+    var dishesImg = document.querySelector(".dishes-media-img");
+    if (dishesImg){
+      gsap.fromTo(dishesImg, { y:-28 }, {
+        y:28,
+        ease:"none",
+        scrollTrigger:{
+          trigger: "#dishes-wrap",
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true
+        }
+      });
+    }
 
     /* ---------- ГЛАВА 4: манифест — три строки по трети пина ---------- */
     var manifestoLines = gsap.utils.toArray(".manifesto-line");
@@ -615,7 +581,9 @@
       }
     });
 
-    /* ---------- ГЛАВЫ 6/7: миссия + карточки-приглашения + пайщики — reveal при входе (без пина) ---------- */
+    /* ---------- ГЛАВЫ 3/4/7/8: круг, ассортимент, миссия+приглашения, пайщики — reveal при входе (без пина) ---------- */
+    initReveal("#circle-wrap", false);
+    initReveal("#dishes-wrap", false);
     initReveal("#mission-wrap", false);
     initReveal("#members", false);
 
@@ -735,7 +703,7 @@
         };
 
         if (hasRole && hasCity){
-          // Расширенная форма предзаказа (глава 5): роль + город + карта заявок.
+          // Расширенная форма заявки (глава 6): роль + город + карта заявок.
           var roleInput = form.querySelector('input[name="role"]:checked');
           roleVal = roleInput ? roleInput.value : "consumer";
           cityVal = form.elements["city"].value || "";
@@ -787,7 +755,7 @@
   }
 
   /* ================================================================
-     ГЛАВА 6: КАРТА ЗАЯВОК
+     ГЛАВА 7: КАРТА ЗАЯВОК
      ================================================================ */
   var ROLE_META = {
     consumer:  { label:"Потребитель", color:"#C1651D" },
@@ -866,7 +834,7 @@
 
   // Стартовый оффсет кампании: 137 "бумажных" предзаказов, собранных до
   // запуска живого счётчика с бэкенда. Реальные заявки (api/summary.js
-  // -> preorders) складываются поверх этого числа как в счётчике (глава 5),
+  // -> preorders) складываются поверх этого числа как в счётчике (глава 6),
   // так и в html-фолбэке data-target на случай, если /api/summary недоступен.
   var PREORDER_BASE = 137;
 
@@ -1034,13 +1002,13 @@
   function applyLiveSummary(summary){
     if (!summary) return;
 
-    // Глава 5: счётчик предзаказов = демо-база (PREORDER_BASE) + реальные предзаказы.
+    // Глава 6: счётчик заявок = демо-база (PREORDER_BASE) + реальные предзаказы.
     var counterEl = document.getElementById("preorder-count");
     if (counterEl){
       counterEl.setAttribute("data-target", String(PREORDER_BASE + (summary.preorders || 0)));
     }
 
-    // Глава 6: одна живая точка на город из byCity, цвет — преобладающая роль.
+    // Глава 7: одна живая точка на город из byCity, цвет — преобладающая роль.
     var byCity = summary.byCity || {};
     Object.keys(byCity).forEach(function(cityName){
       var apiRole = dominantApiRole(byCity[cityName] && byCity[cityName].roles);
@@ -1052,7 +1020,7 @@
     updateTotals();
   }
 
-  // Вызывается из submit-обработчика формы предзаказа (глава 5).
+  // Вызывается из submit-обработчика формы заявки (глава 6).
   function registerPreorderOnMap(cityLabel, role){
     var delay = Math.random() * 2.5;
 
