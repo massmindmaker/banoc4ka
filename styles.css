@@ -26,7 +26,13 @@
 
 html{
   background:var(--bg);
-  overflow-x:hidden;
+  /* overflow:hidden делает элемент scroll-контейнером и обрывает поиск
+     containing block для потомков с position:sticky — из-за этого все три
+     .chapter-pin переставали "прилипать" и просто скроллились как обычный
+     контент (см. коммит перф-редизайна v6). overflow:clip визуально даёт
+     тот же обрез по X (никакого горизонтального скролла), но НЕ создаёт
+     scroll-контейнер, поэтому sticky у потомков продолжает работать. */
+  overflow-x:clip;
 }
 
 body{
@@ -35,7 +41,7 @@ body{
   color:var(--ink);
   font-family:var(--font-body);
   line-height:1.4;
-  overflow-x:hidden;
+  overflow-x:clip;
   width:100%;
 }
 
@@ -197,7 +203,8 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
 }
 
 .chapter-pin{
-  position:relative;
+  position:sticky;
+  top:0;
   width:100%;
   height:100vh;
   overflow:hidden;

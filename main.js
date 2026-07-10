@@ -111,14 +111,21 @@
     });
   }
 
-  /* ---------------- Скрыть прелоадер ---------------- */
-  function hidePreloader(cb){
+  /* ---------------- Скрыть прелоадер ----------------
+     reducedMotion гейтит даже эту чисто служебную анимацию: под
+     prefers-reduced-motion прелоадер скрывается мгновенно, без gsap.timeline,
+     чтобы gsap.globalTimeline не содержал ни одной анимации ни на одном
+     этапе загрузки страницы. */
+  function hidePreloader(reducedMotion, cb){
     var preloader = document.getElementById("preloader");
     if (!preloader){ cb(); return; }
     var curtain = preloader.querySelector(".preloader-curtain");
     var inner = preloader.querySelector(".preloader-inner");
 
-    if (window.gsap){
+    if (reducedMotion){
+      preloader.style.display = "none";
+      cb();
+    } else if (window.gsap){
       var tl = gsap.timeline({ onComplete: function(){ preloader.style.display = "none"; cb(); } });
       tl.to(inner, { opacity:0, duration:0.35, ease:"power2.out" });
       tl.to(preloader, { autoAlpha:0, duration:0.6, ease:"power2.inOut" }, "-=0.1");
@@ -185,8 +192,13 @@
       if (fellBack) return;
       fellBack = true;
       video.classList.add("hero-video-hidden");
+      refreshScrollTrigger();
     }
 
+    // Видео и постер могут менять эффективные размеры hero-слоя до полной
+    // загрузки — пересчитываем позиции ScrollTrigger, иначе scrub-триггеры
+    // могут держать устаревшие start/end и дёргаться при скролле (CLS-подобный эффект).
+    video.addEventListener("loadedmetadata", refreshScrollTrigger);
     video.setAttribute("poster", poster);
     video.addEventListener("error", fallbackToPoster);
     video.src = src;
@@ -206,32 +218,49 @@
   }
 
   /* ================================================================
-     ГЛАВА 2 — JAR CANVAS: canvas-скраб 72 (36 на мобиле) кадров вращения банки.
-     Прелоад прогрессивный: кадр 1 — сразу, остальные — пачками по 6 через
-     requestIdleCallback, чтобы не блокировать прелоадер и не грузить разом
-     весь трафик. drawFrame всегда рисует ближайший уже загруженный кадр.
+     ГЛАВА 2 — JAR CANVAS: canvas-скраб вращения банки. Два независимых
+     набора кадров (перф-редизайн v6): 36 кадров d-0001..d-0036.webp на
+     десктопе, 18 кадров m-0001..m-0018.webp на мобиле (assets/jar-alpha/,
+     прорежены и переужаты из исходных 72 jar-a-*.webp через ffmpeg — см.
+     scratchpad-скрипт генерации, кадры не сгенерированы нейросетью).
+
+     Каждый кадр декодируется заранее через img.decode() ДО первой попытки
+     его нарисовать (Promise.all по чанкам через requestIdleCallback — ни
+     один чанк декодирования не блокирует поток дольше пары ms, decode()
+     сам по себе не занимает главный поток). drawFrame рисует только уже
+     задекодированный кадр (ближайший, если целевой ещё не готов).
+
+     Отрисовка отвязана от частоты onUpdate: setProgress лишь запоминает
+     целевой индекс и планирует один requestAnimationFrame; сам rAF-колбэк
+     перерисовывает канвас, только если целевой индекс отличается от уже
+     нарисованного — это и есть дедупликация, требуемая ТЗ.
      ================================================================ */
   var JarCanvas = (function(){
-    var canvas, ctx, images, loadedFlags, frameIndices, totalFrames;
-    var naturalW = 560, naturalH = 560;
+    var canvas, ctx, images, decoded, prefix, totalFrames;
+    var naturalW = 560, naturalH = 924;
     var lastDrawnIndex = -1;
+    var targetIndex = 0;
+    var rafPending = false;
     var resizeHandlerBound = false;
 
     function pad4(n){ return ("0000" + n).slice(-4); }
-    function framePath(n){ return "assets/jar-alpha/jar-a-" + pad4(n) + ".webp"; }
+    function framePath(idx){ return "assets/jar-alpha/" + prefix + "-" + pad4(idx + 1) + ".webp"; }
 
     function init(canvasEl, opts){
       canvas = canvasEl;
       if (!canvas) return;
-      ctx = canvas.getContext("2d");
+      // desynchronized:true — рендер мимо стандартного композитинг-цикла
+      // (меньше задержка отрисовки на скролле); alpha:true — кадры банки с
+      // прозрачным фоном.
+      ctx = canvas.getContext("2d", { alpha:true, desynchronized:true });
 
-      var step = (opts && opts.mobile) ? 2 : 1;
-      frameIndices = [];
-      for (var i = 1; i <= 72; i += step) frameIndices.push(i);
-      totalFrames = frameIndices.length;
+      var mobile = !!(opts && opts.mobile);
+      prefix = mobile ? "m" : "d";
+      totalFrames = mobile ? 18 : 36;
       images = new Array(totalFrames);
-      loadedFlags = new Array(totalFrames);
+      decoded = new Array(totalFrames);
       lastDrawnIndex = -1;
+      targetIndex = 0;
 
       resizeCanvas();
       if (!resizeHandlerBound){
@@ -240,62 +269,82 @@
       }
 
       var onlyFirst = !!(opts && opts.onlyFirst);
-      loadFrame(0, function(){
+      loadAndDecode(0).then(function(){
         drawFrame(0);
         if (!onlyFirst) loadRestProgressively();
       });
     }
 
-    function loadFrame(idx, cb){
-      if (idx < 0 || idx >= totalFrames){ if (cb) cb(); return; }
-      if (loadedFlags[idx]){ if (cb) cb(); return; }
+    // Создаёт Image, стартует decode() и резолвится, когда кадр реально
+    // готов к синхронной отрисовке (decode() гарантирует это в отличие от
+    // load, который может сработать до полного декода в некоторых браузерах).
+    function loadAndDecode(idx){
+      if (idx < 0 || idx >= totalFrames) return Promise.resolve();
+      if (decoded[idx]) return Promise.resolve();
+
       var img = new Image();
-      img.onload = function(){
-        loadedFlags[idx] = true;
-        images[idx] = img;
+      img.src = framePath(idx);
+      images[idx] = img;
+
+      function markDecoded(){
+        decoded[idx] = true;
         if (idx === 0){
           naturalW = img.naturalWidth || naturalW;
           naturalH = img.naturalHeight || naturalH;
           resizeCanvas();
         }
-        if (cb) cb();
-      };
-      img.onerror = function(){ if (cb) cb(); };
-      img.src = framePath(frameIndices[idx]);
+      }
+
+      if (img.decode){
+        return img.decode().then(markDecoded, function(){
+          // decode() может отклониться (напр. кадр убрали из DOM/сеть оборвалась
+          // на середине) — откатываемся на обычное событие load как фолбэк.
+          return new Promise(function(resolve){
+            if (img.complete && img.naturalWidth){ markDecoded(); resolve(); return; }
+            img.onload = function(){ markDecoded(); resolve(); };
+            img.onerror = function(){ resolve(); };
+          });
+        });
+      }
+
+      return new Promise(function(resolve){
+        img.onload = function(){ markDecoded(); resolve(); };
+        img.onerror = function(){ resolve(); };
+      });
     }
 
+    // Догружает/декодирует остальные кадры чанками по CHUNK штук на один
+    // requestIdleCallback — каждый чанк лишь стартует несколько decode(),
+    // сам decode асинхронный и не занимает главный поток, так что даже
+    // большие totalFrames не создают long task (>50мс).
     function loadRestProgressively(){
       var idx = 1;
-      function runBatch(){
-        var loadedInBatch = 0;
-        function next(){
-          if (idx >= totalFrames) return;
-          var current = idx++;
-          loadFrame(current, function(){
-            loadedInBatch++;
-            if (loadedInBatch < 6 && idx < totalFrames) next();
-          });
-        }
-        next();
-        if (idx < totalFrames) scheduleIdle(runBatch);
+      var CHUNK = 4;
+      function runChunk(){
+        var batch = [];
+        var end = Math.min(totalFrames, idx + CHUNK);
+        for (; idx < end; idx++){ batch.push(loadAndDecode(idx)); }
+        Promise.all(batch).then(function(){
+          if (idx < totalFrames) scheduleIdle(runChunk);
+        });
       }
-      scheduleIdle(runBatch);
+      scheduleIdle(runChunk);
     }
 
     function scheduleIdle(fn){
       if (window.requestIdleCallback){
         requestIdleCallback(fn, { timeout: 500 });
       } else {
-        setTimeout(fn, 120);
+        setTimeout(fn, 0);
       }
     }
 
     function nearestLoadedIndex(idx){
       if (idx < 0 || idx >= totalFrames) return -1;
-      if (loadedFlags[idx]) return idx;
+      if (decoded[idx]) return idx;
       for (var d = 1; d < totalFrames; d++){
-        if (idx - d >= 0 && loadedFlags[idx - d]) return idx - d;
-        if (idx + d < totalFrames && loadedFlags[idx + d]) return idx + d;
+        if (idx - d >= 0 && decoded[idx - d]) return idx - d;
+        if (idx + d < totalFrames && decoded[idx + d]) return idx + d;
       }
       return -1;
     }
@@ -328,16 +377,35 @@
       ctx.drawImage(img, dx, dy, dw, dh);
     }
 
+    // Планирует один rAF; сам колбэк перерисовывает канвас только если
+    // целевой индекс успел измениться относительно уже нарисованного —
+    // дедупликация против частых onUpdate в рамках одного кадра.
+    function scheduleDraw(){
+      if (rafPending) return;
+      rafPending = true;
+      requestAnimationFrame(function(){
+        rafPending = false;
+        if (targetIndex !== lastDrawnIndex) drawFrame(targetIndex);
+      });
+    }
+
     function setProgress(p){
       if (!totalFrames) return;
-      var idx = Math.round(clamp01(p) * (totalFrames - 1));
-      drawFrame(idx);
+      targetIndex = Math.round(clamp01(p) * (totalFrames - 1));
+      scheduleDraw();
     }
 
     function getCanvas(){ return canvas; }
 
     return { init: init, setProgress: setProgress, getCanvas: getCanvas };
   })();
+
+  // Централизованный пересчёт позиций ScrollTrigger. Вызывается после
+  // асинхронной догрузки контента (видео, шрифты), которая может изменить
+  // эффективную высоту/раскладку глав и увести кэш start/end триггеров.
+  function refreshScrollTrigger(){
+    if (window.ScrollTrigger) ScrollTrigger.refresh();
+  }
 
   function debounce(fn, wait){
     var t;
@@ -353,22 +421,50 @@
      ================================================================ */
   function initApp(){
     var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var isMobileViewport = window.matchMedia("(max-width:767px)").matches;
 
     if (reducedMotion){ document.body.classList.add("reduced-motion"); }
 
     /* ---------- ГЛАВА 1: hero-видео (не блокирует прелоадер, грузится тут) ---------- */
     setupHeroVideo(reducedMotion);
 
-    /* ---------- ГЛАВА 2: банка — canvas-скраб. Инициализация и первый кадр
-       нужны и при reduced-motion (статичный кадр 1 без прелоада остальных). ---------- */
-    var jarCanvasEl = document.getElementById("jar-canvas");
-    if (jarCanvasEl){
-      JarCanvas.init(jarCanvasEl, { mobile: isMobileViewport, onlyFirst: reducedMotion });
-    }
-
     if (window.gsap && window.ScrollTrigger){
       gsap.registerPlugin(ScrollTrigger);
+    }
+
+    /* ---------- ГЛАВА 2: банка — canvas-скраб. Инициализация и первый кадр
+       нужны и при reduced-motion (статичный кадр 1 без прелоада остальных).
+       Набор кадров (36 desktop / 18 mobile) — единственная реально
+       брейкпоинт-зависимая JS-настройка в проекте, поэтому именно она
+       собрана в ScrollTrigger.matchMedia (п.4 ТЗ): пины/высоты глав уже
+       брейкпоинт-независимы на уровне JS (высоты задаёт CSS @media), так что
+       заворачивать их в matchMedia было бы избыточно. Прямой window.matchMedia
+       остаётся фолбэком (а) для браузеров без GSAP/ScrollTrigger и (б) для
+       reduced-motion: ScrollTrigger.matchMedia сама заводит служебный
+       gsap-tween для дебаунса ресайза даже без единой видимой анимации —
+       под prefers-reduced-motion это нарушало бы DoD "0 анимаций в
+       gsap.globalTimeline", поэтому там сознательно не даём ей включиться. */
+    var jarCanvasEl = document.getElementById("jar-canvas");
+    if (jarCanvasEl){
+      if (!reducedMotion && window.gsap && window.ScrollTrigger){
+        ScrollTrigger.matchMedia({
+          "(min-width: 768px)": function(){
+            JarCanvas.init(jarCanvasEl, { mobile:false, onlyFirst:false });
+          },
+          "(max-width: 767px)": function(){
+            JarCanvas.init(jarCanvasEl, { mobile:true, onlyFirst:false });
+          }
+        });
+      } else {
+        var isMobileViewport = window.matchMedia("(max-width:767px)").matches;
+        JarCanvas.init(jarCanvasEl, { mobile: isMobileViewport, onlyFirst: reducedMotion });
+      }
+    }
+
+    // Шрифты часто доезжают уже после первого layout и меняют высоту текстовых
+    // блоков (Unbounded/Onest грузятся асинхронно) — пересчитываем ScrollTrigger,
+    // иначе триггеры глав держат start/end, посчитанные по фолбэк-шрифту.
+    if (document.fonts && document.fonts.ready){
+      document.fonts.ready.then(refreshScrollTrigger);
     }
 
     /* ---------- Lenis плавный скролл ---------- */
@@ -376,11 +472,16 @@
     if (window.Lenis && !reducedMotion){
       lenis = new Lenis({ duration: 1.05, smoothWheel: true });
       lenis.on("scroll", function(){ if (window.ScrollTrigger) ScrollTrigger.update(); });
-      function raf(time){ lenis.raf(time); requestAnimationFrame(raf); }
-      requestAnimationFrame(raf);
+      // Единый RAF-драйвер. Раньше lenis.raf() вызывался ДВАЖДЫ за кадр —
+      // и тут, и в отдельном requestAnimationFrame(raf)-цикле ниже — это
+      // удваивало работу Lenis на каждый тик и било по FPS при скролле.
+      // Когда gsap доступен, гоняем Lenis исключительно его тикером;
+      // самостоятельный rAF-цикл остаётся только как фолбэк без gsap.
       if (window.gsap){
         gsap.ticker.add(function(time){ lenis.raf(time * 1000); });
         gsap.ticker.lagSmoothing(0);
+      } else {
+        (function raf(time){ lenis.raf(time); requestAnimationFrame(raf); })();
       }
     }
 
@@ -448,13 +549,10 @@
       return;
     }
 
-    /* ---------- HUD-строка hero: лёгкое появление ---------- */
-    gsap.from("#hero-hud", { opacity:0, y:10, duration:0.6, delay:0.05, ease:"power1.out" });
-    gsap.from(".hero-sub", { opacity:0, y:16, duration:0.6, delay:0.55, ease:"power1.out" });
-    gsap.from(".hero-cta", { opacity:0, y:16, duration:0.6, delay:0.7, ease:"power1.out" });
-
     if (reducedMotion){
-      // Пины отключены глобально через body.reduced-motion (CSS). JS-сцены ниже пропускаем.
+      // Пины отключены глобально через body.reduced-motion (CSS). JS-сцены ниже
+      // (включая HUD-появление hero, п.3 ТЗ) пропускаем целиком — ни одна
+      // gsap-анимация не должна стартовать под prefers-reduced-motion.
       initCounters();
       initForms();
       initReveal("#circle-wrap", true);
@@ -463,6 +561,11 @@
       initReveal("#members", true);
       return;
     }
+
+    /* ---------- HUD-строка hero: лёгкое появление ---------- */
+    gsap.from("#hero-hud", { opacity:0, y:10, duration:0.6, delay:0.05, ease:"power1.out" });
+    gsap.from(".hero-sub", { opacity:0, y:16, duration:0.6, delay:0.55, ease:"power1.out" });
+    gsap.from(".hero-cta", { opacity:0, y:16, duration:0.6, delay:0.7, ease:"power1.out" });
 
     /* ---------- Общий прогресс страницы → шкала ---------- */
     var scaleDot = document.getElementById("scale-dot");
@@ -479,15 +582,11 @@
       }
     });
 
-    /* ---------- ГЛАВА 1: hero pin + медленный zoom фона ---------- */
+    /* ---------- ГЛАВА 1: hero — CSS position:sticky вместо GSAP pin (см.
+       .chapter-pin в styles.css) убирает CLS от pin-spacer'ов. ScrollTrigger
+       здесь остаётся только для scrub медленного zoom фона ниже — самого
+       "прилипания" JS больше не делает, это чистый CSS. ---------- */
     var heroBg = document.getElementById("hero-bg");
-    ScrollTrigger.create({
-      trigger: "#hero-wrap",
-      start: "top top",
-      end: "bottom bottom",
-      pin: ".chapter-hero",
-      scrub: true
-    });
     if (heroBg){
       gsap.fromTo(heroBg, { scale:1 }, {
         scale:1.12,
@@ -510,7 +609,6 @@
       trigger: "#jar-wrap",
       start: "top top",
       end: "bottom bottom",
-      pin: ".chapter-jar",
       scrub: true,
       onUpdate: function(self){
         var p = self.progress;
@@ -568,7 +666,6 @@
       trigger: "#manifesto-wrap",
       start: "top top",
       end: "bottom bottom",
-      pin: ".chapter-manifesto",
       scrub: true,
       onUpdate: function(self){
         var p = self.progress;
@@ -1039,9 +1136,10 @@
      СТАРТ
      ================================================================ */
   document.addEventListener("DOMContentLoaded", function(){
+    var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     preload(function(){
       applyAssetBackgrounds();
-      hidePreloader(function(){
+      hidePreloader(reducedMotion, function(){
         initApp();
       });
     });
