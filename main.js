@@ -448,6 +448,9 @@
     if (window.gsap && window.ScrollTrigger){
       gsap.registerPlugin(ScrollTrigger);
     }
+    if (window.gsap && window.Flip){
+      gsap.registerPlugin(Flip);
+    }
 
     /* ---------- ГЛАВА 2: банка — canvas-скраб. Инициализация и первый кадр
        нужны и при reduced-motion (статичный кадр 1 без прелоада остальных).
