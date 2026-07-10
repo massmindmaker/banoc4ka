@@ -536,6 +536,9 @@
     /* ---------- ГЛАВА 7: карта заявок — инициализация независима от GSAP ---------- */
     initMap();
 
+    /* ---------- ГЛАВА 4: переключатель вкусов — независим от reducedMotion/GSAP ---------- */
+    initDishTabs(reducedMotion);
+
     /* ---------- HERO: заголовок появляется по словам (не по буквам),
        чтобы «В БАНКЕ.» не рвалось на анимации ---------- */
     var heroTitle = document.getElementById("hero-title");
@@ -723,6 +726,54 @@
     // Через refreshScrollTrigger() (дебаунс), а не напрямую — схлопывается
     // с почти одновременными video "loadedmetadata"/fonts.ready вызовами.
     refreshScrollTrigger();
+  }
+
+  /* ================================================================
+     ВАУ-МОМЕНТ 2 — ГЛАВА 4: переключатель вкусов. Клик/наведение (десктоп)
+     перекрашивает подложку фото и меняет описание. reducedMotion — без
+     твинов, значения выставляются мгновенно.
+     ================================================================ */
+  function initDishTabs(reducedMotion){
+    var rows = document.querySelectorAll(".dishes-row");
+    if (!rows.length) return;
+    var wash = document.getElementById("dishes-color-wash");
+    var descName = document.getElementById("dishes-desc-name");
+    var descText = document.getElementById("dishes-desc-text");
+    var hoverable = window.matchMedia("(hover:hover) and (pointer:fine)").matches;
+
+    function activate(row){
+      rows.forEach(function(r){ r.setAttribute("aria-selected", r === row ? "true" : "false"); });
+
+      var color = row.getAttribute("data-color");
+      var name = row.getAttribute("data-name");
+      var desc = row.getAttribute("data-desc");
+
+      if (wash){
+        if (reducedMotion || !window.gsap){ wash.style.backgroundColor = color; }
+        else { gsap.to(wash, { backgroundColor: color, duration:0.5, ease:"power2.out", overwrite:"auto" }); }
+      }
+
+      if (descName && descText){
+        if (reducedMotion || !window.gsap){
+          descName.textContent = name;
+          descText.textContent = desc;
+        } else {
+          var tl = gsap.timeline({ overwrite:true });
+          tl.to([descName, descText], { opacity:0, duration:0.15, ease:"power1.in" });
+          tl.call(function(){ descName.textContent = name; descText.textContent = desc; });
+          tl.to([descName, descText], { opacity:1, duration:0.25, ease:"power1.out" });
+        }
+      }
+    }
+
+    rows.forEach(function(row){
+      row.addEventListener("click", function(){ activate(row); });
+      if (hoverable){
+        row.addEventListener("mouseenter", function(){ activate(row); });
+      }
+    });
+
+    activate(rows[0]);
   }
 
   /* ---------- ГЛАВЫ 6/7: reveal-анимация контента (y+opacity, не pin) ---------- */

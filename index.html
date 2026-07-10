@@ -144,28 +144,35 @@
   <section class="chapter-section chapter-dishes" id="dishes-wrap">
     <div class="dishes-media">
       <div class="dishes-media-img" data-bg="burst"></div>
+      <div class="dishes-color-wash" id="dishes-color-wash" aria-hidden="true"></div>
+      <div class="dishes-desc" id="dishes-desc" aria-live="polite">
+        <p class="dishes-desc-name mono" id="dishes-desc-name">Тушёнка говяжья</p>
+        <p class="dishes-desc-text" id="dishes-desc-text">Флагман. Крупные куски, соль, лавр, перец.</p>
+      </div>
     </div>
     <div class="dishes-inner">
       <h2 class="chapter-eyebrow mono">ГЛАВА 4 · АССОРТИМЕНТ</h2>
       <h2 class="dishes-title reveal">ЧТО БУДЕТ В БАНКЕ</h2>
 
-      <div class="dishes-group reveal">
-        <h3 class="dishes-group-title mono">ЗАГОТОВКИ</h3>
-        <ol class="dishes-list">
-          <li><span class="dishes-num mono">01</span><div><strong>Тушёнка говяжья</strong> — флагман. Крупные куски, соль, лавр, перец.</div></li>
-          <li><span class="dishes-num mono">02</span><div><strong>Тушёнка свиная (шея)</strong> — нежное волокно, топлёный жир.</div></li>
-          <li><span class="dishes-num mono">03</span><div><strong>Фарш-консерв «Домашняя котлета»</strong> — открыл, подогрел, как в детстве.</div></li>
-          <li><span class="dishes-num mono">04</span><div><strong>Топлёное мясо в жире</strong> — старый способ хранения, мясо тает.</div></li>
-        </ol>
-      </div>
+      <div class="dishes-tablist reveal" role="tablist" aria-label="Выбор блюда">
+        <div class="dishes-group">
+          <h3 class="dishes-group-title mono">ЗАГОТОВКИ</h3>
+          <ol class="dishes-list">
+            <li><button type="button" class="dishes-row" role="tab" aria-selected="true" data-color="#8A3A1E" data-name="Тушёнка говяжья" data-desc="Флагман. Крупные куски, соль, лавр, перец."><span class="dishes-num mono">01</span><span class="dishes-row-text"><strong>Тушёнка говяжья</strong> — флагман. Крупные куски, соль, лавр, перец.</span></button></li>
+            <li><button type="button" class="dishes-row" role="tab" aria-selected="false" data-color="#A6572A" data-name="Тушёнка свиная (шея)" data-desc="Нежное волокно, топлёный жир."><span class="dishes-num mono">02</span><span class="dishes-row-text"><strong>Тушёнка свиная (шея)</strong> — нежное волокно, топлёный жир.</span></button></li>
+            <li><button type="button" class="dishes-row" role="tab" aria-selected="false" data-color="#7C4A2B" data-name="Фарш-консерв «Домашняя котлета»" data-desc="Открыл, подогрел, как в детстве."><span class="dishes-num mono">03</span><span class="dishes-row-text"><strong>Фарш-консерв «Домашняя котлета»</strong> — открыл, подогрел, как в детстве.</span></button></li>
+            <li><button type="button" class="dishes-row" role="tab" aria-selected="false" data-color="#B5791F" data-name="Топлёное мясо в жире" data-desc="Старый способ хранения, мясо тает."><span class="dishes-num mono">04</span><span class="dishes-row-text"><strong>Топлёное мясо в жире</strong> — старый способ хранения, мясо тает.</span></button></li>
+          </ol>
+        </div>
 
-      <div class="dishes-group reveal">
-        <h3 class="dishes-group-title mono">ГОТОВЫЕ БЛЮДА</h3>
-        <ol class="dishes-list" start="5">
-          <li><span class="dishes-num mono">05</span><div><strong>Говяжьи котлеты в желе</strong> — тёмное мясо в янтарном желе.</div></li>
-          <li><span class="dishes-num mono">06</span><div><strong>Овощной говяжий гуляш</strong> — с овощами, реторт-пакет или банка.</div></li>
-          <li><span class="dishes-num mono">07</span><div><strong>Гуляш-концентрат «Обед за 5 минут»</strong> — брусок в кипяток, густой суп.</div></li>
-        </ol>
+        <div class="dishes-group">
+          <h3 class="dishes-group-title mono">ГОТОВЫЕ БЛЮДА</h3>
+          <ol class="dishes-list" start="5">
+            <li><button type="button" class="dishes-row" role="tab" aria-selected="false" data-color="#C9942A" data-name="Говяжьи котлеты в желе" data-desc="Тёмное мясо в янтарном желе."><span class="dishes-num mono">05</span><span class="dishes-row-text"><strong>Говяжьи котлеты в желе</strong> — тёмное мясо в янтарном желе.</span></button></li>
+            <li><button type="button" class="dishes-row" role="tab" aria-selected="false" data-color="#5E6B34" data-name="Овощной говяжий гуляш" data-desc="С овощами, реторт-пакет или банка."><span class="dishes-num mono">06</span><span class="dishes-row-text"><strong>Овощной говяжий гуляш</strong> — с овощами, реторт-пакет или банка.</span></button></li>
+            <li><button type="button" class="dishes-row" role="tab" aria-selected="false" data-color="#8F5A2C" data-name="Гуляш-концентрат «Обед за 5 минут»" data-desc="Брусок в кипяток, густой суп."><span class="dishes-num mono">07</span><span class="dishes-row-text"><strong>Гуляш-концентрат «Обед за 5 минут»</strong> — брусок в кипяток, густой суп.</span></button></li>
+          </ol>
+        </div>
       </div>
 
       <p class="dishes-disclaimer reveal">Составы и граммовки утвердит технолог цеха. Цены появятся, когда будет что продавать.</p>
