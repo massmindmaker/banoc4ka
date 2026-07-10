@@ -742,7 +742,13 @@
       }
     }
 
-    if (window.ScrollTrigger){
+    // Под prefers-reduced-motion ScrollTrigger.create() тут не нужен вообще:
+    // сам факт существования ХОТЯ БЫ ОДНОГО инстанса ScrollTrigger заставляет
+    // GSAP-ядро повесить на gsap.globalTimeline свой служебный paused-tween
+    // _refreshAll (duration:0) — это и есть тот самый 1 "лишний" child,
+    // который ломает DoD "0 анимаций в globalTimeline" при reduced motion
+    // (см. верификацию v-p0). Значение просто выставляем сразу, без триггера.
+    if (window.ScrollTrigger && !document.body.classList.contains("reduced-motion")){
       ScrollTrigger.create({
         trigger: counterEl,
         start: "top 85%",
