@@ -539,6 +539,9 @@
     /* ---------- ГЛАВА 4: переключатель вкусов — независим от reducedMotion/GSAP ---------- */
     initDishTabs(reducedMotion);
 
+    /* ---------- ГЛАВА 3: раскрытие карточки фермера (Flip) — независимо от reducedMotion ---------- */
+    initFarmerFlip(reducedMotion);
+
     /* ---------- HERO: заголовок появляется по словам (не по буквам),
        чтобы «В БАНКЕ.» не рвалось на анимации ---------- */
     var heroTitle = document.getElementById("hero-title");
@@ -774,6 +777,80 @@
     });
 
     activate(rows[0]);
+  }
+
+  /* ================================================================
+     ВАУ-МОМЕНТ 3 — ГЛАВА 3: раскрытие карточки фермера через GSAP Flip.
+     Десктоп (min-width:768px) — морфинг карточки в оверлей на весь экран.
+     Мобила — лёгкий scale-пульс, оверлей не открываем. reducedMotion —
+     мгновенное появление/исчезновение без Flip-анимации.
+     ================================================================ */
+  function initFarmerFlip(reducedMotion){
+    var card = document.querySelector('.circle-card[data-stage="farmer"]');
+    if (!card) return;
+    var closeBtn = card.querySelector(".circle-card-close");
+    var placeholder = document.getElementById("farmer-placeholder");
+    var backdrop = document.getElementById("circle-flip-backdrop");
+    var isExpanded = false;
+
+    function isDesktop(){ return window.matchMedia("(min-width:768px)").matches; }
+
+    function openCard(){
+      if (isExpanded) return;
+      if (!isDesktop()){
+        if (window.gsap && !reducedMotion){
+          gsap.fromTo(card, { scale:1 }, { scale:1.02, duration:0.15, yoyo:true, repeat:1, ease:"power1.inOut" });
+        }
+        return;
+      }
+
+      isExpanded = true;
+      var flipReady = window.gsap && window.Flip && !reducedMotion;
+      var state = flipReady ? Flip.getState(card, { props:"borderRadius" }) : null;
+
+      if (placeholder) placeholder.classList.add("is-active");
+      if (backdrop) backdrop.classList.add("is-active");
+      card.classList.add("is-expanded");
+
+      if (state){
+        Flip.from(state, { duration:0.6, ease:"power3.inOut", scale:true, onComplete:function(){ if (closeBtn) closeBtn.focus(); } });
+      } else if (closeBtn){
+        closeBtn.focus();
+      }
+    }
+
+    function closeCard(){
+      if (!isExpanded) return;
+      var flipReady = window.gsap && window.Flip && !reducedMotion;
+      var state = flipReady ? Flip.getState(card, { props:"borderRadius" }) : null;
+
+      card.classList.remove("is-expanded");
+      if (placeholder) placeholder.classList.remove("is-active");
+      if (backdrop) backdrop.classList.remove("is-active");
+      isExpanded = false;
+
+      if (state){
+        Flip.from(state, { duration:0.5, ease:"power3.inOut", scale:true });
+      }
+      card.focus({ preventScroll:true });
+    }
+
+    card.addEventListener("click", function(){ if (!isExpanded) openCard(); });
+    card.addEventListener("keydown", function(e){
+      if ((e.key === "Enter" || e.key === " ") && !isExpanded){
+        e.preventDefault();
+        openCard();
+      }
+    });
+    if (closeBtn){
+      closeBtn.addEventListener("click", function(e){ e.stopPropagation(); closeCard(); });
+    }
+    if (backdrop){
+      backdrop.addEventListener("click", closeCard);
+    }
+    document.addEventListener("keydown", function(e){
+      if (e.key === "Escape" && isExpanded) closeCard();
+    });
   }
 
   /* ---------- ГЛАВЫ 6/7: reveal-анимация контента (y+opacity, не pin) ---------- */

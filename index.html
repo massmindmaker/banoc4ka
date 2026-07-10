@@ -117,12 +117,15 @@
           <p><span class="circle-label mono">Даёшь</span>спрос и доверие.</p>
           <p><span class="circle-label mono">Получаешь</span>честную еду и цену без наценки посредника.</p>
         </article>
-        <article class="circle-card reveal" data-stage="farmer" data-bg="farm">
+        <article class="circle-card reveal" data-stage="farmer" data-bg="farm" tabindex="0" role="button" aria-haspopup="dialog" aria-label="Раскрыть карточку фермера">
           <div class="circle-card-scrim"></div>
+          <p class="circle-card-flip-caption mono">Мы знаем, чьё это мясо.</p>
           <h3>ФЕРМЕР</h3>
           <p><span class="circle-label mono">Даёт</span>мясо, за которое не стыдно.</p>
           <p><span class="circle-label mono">Получает</span>гарантированный сбыт и долю прибыли.</p>
+          <button type="button" class="circle-card-close" aria-label="Закрыть">&times;</button>
         </article>
+        <div class="circle-card-placeholder" id="farmer-placeholder" aria-hidden="true"></div>
         <article class="circle-card reveal" data-stage="workshop" data-bg="workshop">
           <div class="circle-card-scrim"></div>
           <h3>ЦЕХ</h3>
@@ -135,6 +138,8 @@
           <p>Существует, пока честен.</p>
         </article>
       </div>
+
+      <div class="circle-flip-backdrop" id="circle-flip-backdrop" aria-hidden="true"></div>
 
       <p class="circle-proof mono reveal">Каждая партия проходит лабораторный контроль. Автоклав, ХАССП, электронные ветеринарные документы, код на крышке.</p>
     </div>
