@@ -626,6 +626,14 @@
     var hud2 = document.querySelector('[data-hud="2"]');
     var hud3 = document.querySelector('[data-hud="3"]');
 
+    // ВАУ-МОМЕНТ 1: слово "БАНКА" за канвасом — параллакс-сдвиг противоходом
+    // вращению банки. Только десктоп (на мобиле слово статично, без сдвига).
+    // Амплитуда в px от ширины окна (не от ширины самого слова) — так
+    // сдвиг предсказуемо укладывается в ≤8% ширины секции на любом кегле.
+    var jarWordText = document.getElementById("jar-word-text");
+    var jarWordActive = !!jarWordText && !window.matchMedia("(max-width:767px)").matches;
+    var jarWordAmp = jarWordActive ? window.innerWidth * 0.04 : 0;
+
     ScrollTrigger.create({
       trigger: "#jar-wrap",
       start: "top top",
@@ -640,6 +648,10 @@
         setHud(hud1, p >= 0.02 && p < 0.35);
         setHud(hud2, p >= 0.35 && p < 0.68);
         setHud(hud3, p >= 0.68 && p < 0.85);
+
+        if (jarWordActive){
+          gsap.set(jarWordText, { x: -jarWordAmp + p * (jarWordAmp * 2) });
+        }
       }
     });
 
