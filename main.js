@@ -184,7 +184,8 @@
     }
 
     var isMobile = window.matchMedia("(max-width:767px)").matches;
-    var src = isMobile ? "assets/hero-loop-9x16.mp4" : "assets/hero-loop-16x9.mp4";
+    var srcWebm = isMobile ? "assets/hero-loop-9x16.webm" : "assets/hero-loop-16x9.webm";
+    var srcMp4 = isMobile ? "assets/hero-loop-9x16.mp4" : "assets/hero-loop-16x9.mp4";
     var poster = isMobile ? "assets/hero-poster-9x16.jpg" : "assets/hero-poster-16x9.jpg";
 
     var fellBack = false;
@@ -201,7 +202,18 @@
     video.addEventListener("loadedmetadata", refreshScrollTrigger);
     video.setAttribute("poster", poster);
     video.addEventListener("error", fallbackToPoster);
-    video.src = src;
+    // webm (VP9) первым источником — заметно легче h264 при том же качестве в
+    // браузерах, которые его поддерживают; mp4 остаётся фолбэком через <source>
+    // (браузер сам выбирает первый декодируемый источник).
+    while (video.firstChild) video.removeChild(video.firstChild);
+    var sourceWebm = document.createElement("source");
+    sourceWebm.setAttribute("src", srcWebm);
+    sourceWebm.setAttribute("type", "video/webm");
+    video.appendChild(sourceWebm);
+    var sourceMp4 = document.createElement("source");
+    sourceMp4.setAttribute("src", srcMp4);
+    sourceMp4.setAttribute("type", "video/mp4");
+    video.appendChild(sourceMp4);
     video.load();
 
     var playPromise;
