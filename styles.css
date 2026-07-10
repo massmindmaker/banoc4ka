@@ -794,8 +794,8 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
   position:absolute; inset:0;
   z-index:1;
   background-color:#8A3A1E;
-  mix-blend-mode:multiply;
-  opacity:0.5;
+  mix-blend-mode:color;
+  opacity:0.92;
   pointer-events:none;
 }
 
