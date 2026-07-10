@@ -400,13 +400,6 @@
     return { init: init, setProgress: setProgress, getCanvas: getCanvas };
   })();
 
-  // Централизованный пересчёт позиций ScrollTrigger. Вызывается после
-  // асинхронной догрузки контента (видео, шрифты), которая может изменить
-  // эффективную высоту/раскладку глав и увести кэш start/end триггеров.
-  function refreshScrollTrigger(){
-    if (window.ScrollTrigger) ScrollTrigger.refresh();
-  }
-
   function debounce(fn, wait){
     var t;
     return function(){
@@ -415,6 +408,19 @@
       t = setTimeout(function(){ fn.apply(ctx, args); }, wait);
     };
   }
+
+  // Централизованный пересчёт позиций ScrollTrigger. Вызывается после
+  // асинхронной догрузки контента (видео, шрифты), которая может изменить
+  // эффективную высоту/раскладку глав и увести кэш start/end триггеров.
+  // Дебаунс на 130мс — video "loadedmetadata", fonts.ready и финальный вызов
+  // из initApp() почти всегда срабатывают в первые ~1-2с почти одновременно;
+  // без дебаунса это 2-3 отдельных полных ScrollTrigger.refresh() (полный
+  // getBoundingClientRect по всем триггерам глав) подряд — именно они и
+  // давали самые тяжёлые long tasks в первые секунды (см. верификацию v-p0).
+  // Дебаунс схлопывает их в один вызов после того, как все источники отстрелялись.
+  var refreshScrollTrigger = debounce(function(){
+    if (window.ScrollTrigger) ScrollTrigger.refresh();
+  }, 130);
 
   /* ================================================================
      ГЛАВНАЯ ИНИЦИАЛИЗАЦИЯ (после закрытия прелоадера)
@@ -687,7 +693,9 @@
     initCounters();
     initForms();
 
-    ScrollTrigger.refresh();
+    // Через refreshScrollTrigger() (дебаунс), а не напрямую — схлопывается
+    // с почти одновременными video "loadedmetadata"/fonts.ready вызовами.
+    refreshScrollTrigger();
   }
 
   /* ---------- ГЛАВЫ 6/7: reveal-анимация контента (y+opacity, не pin) ---------- */
