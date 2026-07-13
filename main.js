@@ -7,18 +7,21 @@
 
   var ASSET_NAMES = [
     "hero-sky",
-    "farm","workshop","shelf",
-    "burst"
+    "farm","workshop","shelf"
   ];
 
-  // Раскадровка v5: логическое имя ассета (см. data-bg в index.html) -> реальный
+  // Раскадровка v7: логическое имя ассета (см. data-bg в index.html) -> реальный
   // файл в assets/. hero-sky теперь — мастер-кадр B (статичный фолбэк/OG для
   // видео-hero, см. setupHeroVideo()). jar-front/quarter/side удалены v3→v4:
-  // глава 2 больше не грузит их — заменены на canvas-скраб 72 кадров
-  // assets/jar-alpha/ (JarCanvas), которые прелоадер НЕ ждёт (грузятся
-  // прогрессивно после старта страницы). Фоновые фото глав манифеста и
-  // пайщиков, UGC-полоса и пролёт банки между главами удалены v4→v5 вместе
-  // с соответствующими им ассетами.
+  // canvas-скраб кадров assets/jar-alpha/ (JarCanvas) прелоадер НЕ ждёт
+  // (грузится прогрессивно после старта страницы). Фоновые фото глав
+  // манифеста и пайщиков, UGC-полоса и пролёт банки между главами удалены
+  // v4→v5 вместе с соответствующими им ассетами. v6→v7: отдельная глава 2
+  // «Банка» удалена целиком (решение владельца — состав/автоклав/твист-офф
+  // не нужны); её canvas-вращение переехало в главу «Что будет в банке»
+  // (см. initDishesChapter), "farm" (SB-04) теперь используется дважды —
+  // как фон карточки ФЕРМЕР и как полноэкранный фон новой секции коров
+  // (#cows-wrap) сразу после главы «Круг, а не цепочка».
   //
   // Перф-редизайн (вес до load): у каждого фона теперь есть .avif и .webp
   // рядом с оригиналом (см. ASSET_ORIGINAL_EXT). Загрузка пробует по цепочке
@@ -29,16 +32,14 @@
     "hero-sky":              "hero-soft-B",
     "farm":                  "SB-04",
     "workshop":              "SB-05",
-    "shelf":                 "SB-07",
-    "burst":                 "SB-09"
+    "shelf":                 "SB-07"
   };
 
   var ASSET_ORIGINAL_EXT = {
     "hero-sky":              "png",
     "farm":                  "png",
     "workshop":              "png",
-    "shelf":                 "png",
-    "burst":                 "png"
+    "shelf":                 "png"
   };
 
   var ASSET_STATUS = {};   // name -> true (loaded) | false (error)
@@ -230,7 +231,7 @@
   }
 
   /* ================================================================
-     ГЛАВА 2 — JAR CANVAS: canvas-скраб вращения банки. Два независимых
+     ГЛАВА 3 (АССОРТИМЕНТ) — JAR CANVAS: canvas-скраб вращения банки. Два независимых
      набора кадров (перф-редизайн v6): 36 кадров d-0001..d-0036.webp на
      десктопе, 18 кадров m-0001..m-0018.webp на мобиле (assets/jar-alpha/,
      прорежены и переужаты из исходных 72 jar-a-*.webp через ffmpeg — см.
@@ -448,13 +449,10 @@
     if (window.gsap && window.ScrollTrigger){
       gsap.registerPlugin(ScrollTrigger);
     }
-    if (window.gsap && window.Flip){
-      gsap.registerPlugin(Flip);
-    }
 
-    /* ---------- ГЛАВА 2: банка — canvas-скраб. Инициализация и первый кадр
-       нужны и при reduced-motion (статичный кадр 1 без прелоада остальных).
-       Набор кадров (36 desktop / 18 mobile) — единственная реально
+    /* ---------- ГЛАВА 3 (АССОРТИМЕНТ): банка — canvas-скраб. Инициализация и
+       первый кадр нужны и при reduced-motion (статичный кадр 1 без прелоада
+       остальных). Набор кадров (36 desktop / 18 mobile) — единственная реально
        брейкпоинт-зависимая JS-настройка в проекте, поэтому именно она
        собрана в ScrollTrigger.matchMedia (п.4 ТЗ): пины/высоты глав уже
        брейкпоинт-независимы на уровне JS (высоты задаёт CSS @media), так что
@@ -517,7 +515,7 @@
       });
     });
 
-    /* ---------- ГЛАВА 7: карточки-приглашения → скролл к форме + предвыбор роли ---------- */
+    /* ---------- ГЛАВА 6: карточки-приглашения → скролл к форме + предвыбор роли ---------- */
     document.querySelectorAll("[data-invite-role]").forEach(function(btn){
       btn.addEventListener("click", function(){
         var role = btn.getAttribute("data-invite-role");
@@ -533,14 +531,13 @@
       });
     });
 
-    /* ---------- ГЛАВА 7: карта заявок — инициализация независима от GSAP ---------- */
+    /* ---------- ГЛАВА 6: карта заявок — инициализация независима от GSAP ---------- */
     initMap();
 
-    /* ---------- ГЛАВА 4: переключатель вкусов — независим от reducedMotion/GSAP ---------- */
-    initDishTabs(reducedMotion);
-
-    /* ---------- ГЛАВА 3: раскрытие карточки фермера (Flip) — независимо от reducedMotion ---------- */
-    initFarmerFlip(reducedMotion);
+    /* ---------- ГЛАВА 3: переключатель вкусов + canvas-банка — независим от reducedMotion/GSAP
+       (сам crossfade фото — чистый CSS-transition; GSAP используется только
+       для заливки цвета фона и текста описания, если доступен). ---------- */
+    initDishesChapter(reducedMotion);
 
     /* ---------- HERO: заголовок появляется по словам (не по буквам),
        чтобы «В БАНКЕ.» не рвалось на анимации ---------- */
@@ -627,46 +624,7 @@
       });
     }
 
-    /* ---------- ГЛАВА 2: банка — canvas-скраб 72 кадров + HUD ---------- */
-    var hud1 = document.querySelector('[data-hud="1"]');
-    var hud2 = document.querySelector('[data-hud="2"]');
-    var hud3 = document.querySelector('[data-hud="3"]');
-
-    // ВАУ-МОМЕНТ 1: слово "БАНКА" за канвасом — параллакс-сдвиг противоходом
-    // вращению банки. Только десктоп (на мобиле слово статично, без сдвига).
-    // Амплитуда в px от ширины окна (не от ширины самого слова) — так
-    // сдвиг предсказуемо укладывается в ≤8% ширины секции на любом кегле.
-    var jarWordText = document.getElementById("jar-word-text");
-    var jarWordActive = !!jarWordText && !window.matchMedia("(max-width:767px)").matches;
-    var jarWordAmp = jarWordActive ? window.innerWidth * 0.04 : 0;
-
-    ScrollTrigger.create({
-      trigger: "#jar-wrap",
-      start: "top top",
-      end: "bottom bottom",
-      scrub: true,
-      onUpdate: function(self){
-        var p = self.progress;
-
-        JarCanvas.setProgress(p);
-
-        // HUD-выноски по третям (без изменений относительно v3)
-        setHud(hud1, p >= 0.02 && p < 0.35);
-        setHud(hud2, p >= 0.35 && p < 0.68);
-        setHud(hud3, p >= 0.68 && p < 0.85);
-
-        if (jarWordActive){
-          gsap.set(jarWordText, { x: -jarWordAmp + p * (jarWordAmp * 2) });
-        }
-      }
-    });
-
-    function setHud(el, active){
-      if (!el) return;
-      gsap.to(el, { opacity: active ? 1 : 0, y: active ? 0 : 12, duration:0.3, ease:"power1.out", overwrite:"auto" });
-    }
-
-    /* ---------- ГЛАВА 3: круг — обычный скролл (без пина), карточки reveal +
+    /* ---------- ГЛАВА 2: круг — обычный скролл (без пина), карточки reveal +
        подсветка шкалы прослеживаемости по мере прохождения каждой карточки ---------- */
     var circleStageOrder = ["you","farmer","workshop","coop"];
     circleStageOrder.forEach(function(stage){
@@ -684,18 +642,38 @@
       });
     });
 
-    /* ---------- ГЛАВА 4: что будет в банке — лёгкий параллакс картинки левитации ---------- */
-    var dishesImg = document.querySelector(".dishes-media-img");
-    if (dishesImg){
-      gsap.fromTo(dishesImg, { y:-28 }, {
-        y:28,
+    /* ---------- ФЕРМЫ (полноэкранный слайд после «Круга»): лёгкий Ken Burns —
+       медленный scale 1→1.08 по скроллу секции, scrub. Тот же приём, что и
+       heroBg выше — чистый scrub-твин без пина, поэтому работает и на мобиле. ---------- */
+    var cowsBg = document.querySelector(".cows-bg");
+    if (cowsBg){
+      gsap.fromTo(cowsBg, { scale:1 }, {
+        scale:1.08,
         ease:"none",
         scrollTrigger:{
-          trigger: "#dishes-wrap",
+          trigger: "#cows-wrap",
           start: "top bottom",
           end: "bottom top",
           scrub: true
         }
+      });
+    }
+
+    /* ---------- ГЛАВА 3: что будет в банке — canvas-скраб вращения банки
+       (переехал из бывшей главы 2). Прогресс скролла всей секции 0→1
+       маппится на кадр 1→N через JarCanvas.setProgress — сама секция не
+       заПинена GSAP-ом: правая колонка (.dishes-stage) "прилипает" чистым
+       CSS position:sticky (см. styles.css), пока левая колонка со списком
+       блюд скроллится естественно — тот же приём, что и у hero (см. выше),
+       работает без брейкпоинт-гейтинга и на мобиле. ---------- */
+    var dishesWrapEl = document.getElementById("dishes-wrap");
+    if (dishesWrapEl){
+      ScrollTrigger.create({
+        trigger: dishesWrapEl,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: true,
+        onUpdate: function(self){ JarCanvas.setProgress(self.progress); }
       });
     }
 
@@ -717,7 +695,11 @@
       }
     });
 
-    /* ---------- ГЛАВЫ 3/4/7/8: круг, ассортимент, миссия+приглашения, пайщики — reveal при входе (без пина) ---------- */
+    /* ---------- ГЛАВЫ 2/3/6/7: круг, ассортимент, миссия+приглашения, пайщики — reveal при входе (без пина).
+       Фермы (коровы) сюда не входят: текст там всегда виден сразу (как в hero),
+       без scroll-linked reveal — это full-bleed "вау"-слайд, а не длинная секция
+       для чтения, и якорный скролл-переход к ней (напр. Playwright scrollTo)
+       не должен зависеть от точного положения скролла в момент проверки. ---------- */
     initReveal("#circle-wrap", false);
     initReveal("#dishes-wrap", false);
     initReveal("#mission-wrap", false);
@@ -732,32 +714,93 @@
   }
 
   /* ================================================================
-     ВАУ-МОМЕНТ 2 — ГЛАВА 4: переключатель вкусов. Клик/наведение (десктоп)
-     перекрашивает подложку фото и меняет описание. reducedMotion — без
-     твинов, значения выставляются мгновенно.
+     ВАУ-МОМЕНТ 2 — ГЛАВА 3: переключатель вкусов = смена СОДЕРЖИМОГО БАНКИ.
+     Список слева кликабелен/наводим (десктоп). Справа поверх вращающегося
+     canvas (JarCanvas, всегда крутится по скроллу секции) кросс-фейдом
+     появляется фото выбранного блюда (0.45с, чистый CSS-transition на
+     .dishes-photo — см. styles.css), плюс короткий блик по стеклу
+     (.dishes-flash, CSS-анимация). Фон секции (color-wash) и текст описания
+     тонируются под блюдо через GSAP, если он доступен. reducedMotion — без
+     твинов и без блика, значения/фото выставляются мгновенно.
+
+     Ленивая загрузка фото: <img> на конкретное блюдо создаётся (и запрашивается
+     сетью) только когда блюдо становится активным ИЛИ соседним по списку с
+     активным — остальные 7 фото не грузятся, пока пользователь до них не
+     доскроллит/не кликнет.
      ================================================================ */
-  function initDishTabs(reducedMotion){
+  var DISH_PHOTO_DIR = "assets/dishes/";
+
+  function dishPhotoUrl(key){ return DISH_PHOTO_DIR + "jar-" + key + ".webp"; }
+
+  function initDishesChapter(reducedMotion){
     var rows = document.querySelectorAll(".dishes-row");
     if (!rows.length) return;
+    var rowsArr = Array.prototype.slice.call(rows);
     var wash = document.getElementById("dishes-color-wash");
     var descName = document.getElementById("dishes-desc-name");
     var descText = document.getElementById("dishes-desc-text");
+    var photoLayer = document.getElementById("dishes-photo-layer");
+    var flashEl = document.getElementById("dishes-flash");
     var hoverable = window.matchMedia("(hover:hover) and (pointer:fine)").matches;
 
-    function activate(row){
-      rows.forEach(function(r){ r.setAttribute("aria-selected", r === row ? "true" : "false"); });
+    var photoEls = {}; // dish key -> <img>
+
+    // Создаёт <img> (и тем самым стартует сетевой запрос) один раз на ключ.
+    // Повторный вызов для уже созданного ключа — no-op (это и есть "не грузить
+    // остальные 7, пока не понадобятся").
+    function ensurePhoto(key){
+      if (!key || !photoLayer) return null;
+      if (photoEls[key]) return photoEls[key];
+      var img = document.createElement("img");
+      img.className = "dishes-photo";
+      img.alt = "";
+      img.decoding = "async";
+      img.src = dishPhotoUrl(key);
+      photoLayer.appendChild(img);
+      photoEls[key] = img;
+      return img;
+    }
+
+    function showPhoto(key){
+      ensurePhoto(key);
+      Object.keys(photoEls).forEach(function(k){
+        photoEls[k].classList.toggle("is-active", k === key);
+      });
+    }
+
+    function preloadNeighbors(row){
+      var idx = rowsArr.indexOf(row);
+      if (idx > 0) ensurePhoto(rowsArr[idx - 1].getAttribute("data-img"));
+      if (idx < rowsArr.length - 1) ensurePhoto(rowsArr[idx + 1].getAttribute("data-img"));
+    }
+
+    // Короткая вспышка блика по стеклу при смене блюда (не при первом показе).
+    function flashGlass(){
+      if (reducedMotion || !flashEl) return;
+      flashEl.classList.remove("is-flashing");
+      void flashEl.offsetWidth; // форс reflow, чтобы анимацию можно было перезапустить
+      flashEl.classList.add("is-flashing");
+    }
+
+    function activate(row, isInitial){
+      rowsArr.forEach(function(r){ r.setAttribute("aria-selected", r === row ? "true" : "false"); });
 
       var color = row.getAttribute("data-color");
       var name = row.getAttribute("data-name");
       var desc = row.getAttribute("data-desc");
+      var imgKey = row.getAttribute("data-img");
 
       if (wash){
         if (reducedMotion || !window.gsap){ wash.style.backgroundColor = color; }
         else { gsap.to(wash, { backgroundColor: color, duration:0.5, ease:"power2.out", overwrite:"auto" }); }
       }
 
+      showPhoto(imgKey);
+      preloadNeighbors(row);
+      if (!isInitial) flashGlass();
+
       if (descName && descText){
-        if (reducedMotion || !window.gsap){
+        if (isInitial || reducedMotion || !window.gsap){
           descName.textContent = name;
           descText.textContent = desc;
         } else {
@@ -769,91 +812,19 @@
       }
     }
 
-    rows.forEach(function(row){
-      row.addEventListener("click", function(){ activate(row); });
+    // .dishes-row — нативный <button>: Enter/Space уже активируют click без
+    // дополнительных keydown-обработчиков (встроенная доступность кнопки).
+    rowsArr.forEach(function(row){
+      row.addEventListener("click", function(){ activate(row, false); });
       if (hoverable){
-        row.addEventListener("mouseenter", function(){ activate(row); });
+        row.addEventListener("mouseenter", function(){ activate(row, false); });
       }
     });
 
-    activate(rows[0]);
+    activate(rowsArr[0], true);
   }
 
-  /* ================================================================
-     ВАУ-МОМЕНТ 3 — ГЛАВА 3: раскрытие карточки фермера через GSAP Flip.
-     Десктоп (min-width:768px) — морфинг карточки в оверлей на весь экран.
-     Мобила — лёгкий scale-пульс, оверлей не открываем. reducedMotion —
-     мгновенное появление/исчезновение без Flip-анимации.
-     ================================================================ */
-  function initFarmerFlip(reducedMotion){
-    var card = document.querySelector('.circle-card[data-stage="farmer"]');
-    if (!card) return;
-    var closeBtn = card.querySelector(".circle-card-close");
-    var placeholder = document.getElementById("farmer-placeholder");
-    var backdrop = document.getElementById("circle-flip-backdrop");
-    var isExpanded = false;
-
-    function isDesktop(){ return window.matchMedia("(min-width:768px)").matches; }
-
-    function openCard(){
-      if (isExpanded) return;
-      if (!isDesktop()){
-        if (window.gsap && !reducedMotion){
-          gsap.fromTo(card, { scale:1 }, { scale:1.02, duration:0.15, yoyo:true, repeat:1, ease:"power1.inOut" });
-        }
-        return;
-      }
-
-      isExpanded = true;
-      var flipReady = window.gsap && window.Flip && !reducedMotion;
-      var state = flipReady ? Flip.getState(card, { props:"borderRadius" }) : null;
-
-      if (placeholder) placeholder.classList.add("is-active");
-      if (backdrop) backdrop.classList.add("is-active");
-      card.classList.add("is-expanded");
-
-      if (state){
-        Flip.from(state, { duration:0.6, ease:"power3.inOut", scale:true, onComplete:function(){ if (closeBtn) closeBtn.focus(); } });
-      } else if (closeBtn){
-        closeBtn.focus();
-      }
-    }
-
-    function closeCard(){
-      if (!isExpanded) return;
-      var flipReady = window.gsap && window.Flip && !reducedMotion;
-      var state = flipReady ? Flip.getState(card, { props:"borderRadius" }) : null;
-
-      card.classList.remove("is-expanded");
-      if (placeholder) placeholder.classList.remove("is-active");
-      if (backdrop) backdrop.classList.remove("is-active");
-      isExpanded = false;
-
-      if (state){
-        Flip.from(state, { duration:0.5, ease:"power3.inOut", scale:true });
-      }
-      card.focus({ preventScroll:true });
-    }
-
-    card.addEventListener("click", function(){ if (!isExpanded) openCard(); });
-    card.addEventListener("keydown", function(e){
-      if ((e.key === "Enter" || e.key === " ") && !isExpanded){
-        e.preventDefault();
-        openCard();
-      }
-    });
-    if (closeBtn){
-      closeBtn.addEventListener("click", function(e){ e.stopPropagation(); closeCard(); });
-    }
-    if (backdrop){
-      backdrop.addEventListener("click", closeCard);
-    }
-    document.addEventListener("keydown", function(e){
-      if (e.key === "Escape" && isExpanded) closeCard();
-    });
-  }
-
-  /* ---------- ГЛАВЫ 6/7: reveal-анимация контента (y+opacity, не pin) ---------- */
+  /* ---------- ГЛАВЫ 5/6: reveal-анимация контента (y+opacity, не pin) ---------- */
   function initReveal(rootSelector, reducedMotion){
     var items = document.querySelectorAll(rootSelector + " .reveal");
     if (!items.length) return;

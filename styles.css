@@ -313,8 +313,16 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
 }
 
 .hero-content .hud-line{
-  color:#E08A3C;
-  text-shadow:0 2px 12px rgba(16,11,6,.55);
+  /* Фикс контраста (было 2.04:1 на десктопе): вместо голого текста поверх
+     видео/фото — непрозрачная тёмная плашка + кремовый (var(--bg)) текст.
+     Плашка держит контраст независимо от того, что происходит в кадре видео
+     под ней (проверено на светлом небе и на тёмных участках) — см. отчёт. */
+  display:inline-block;
+  color:var(--bg);
+  background:rgba(16,11,6,0.72);
+  padding:7px 16px;
+  border-radius:999px;
+  text-shadow:none;
 }
 
 .hero-title{
@@ -424,94 +432,9 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
 }
 
 /* ==========================================================================
-   2. БАНКА
-   ========================================================================== */
-.chapter-jar-wrap{ height:300vh; }
-
-@media (max-width:767px){
-  .chapter-jar-wrap{ height:150vh; }
-}
-
-.chapter-jar{
-  background:linear-gradient(180deg, var(--bg), color-mix(in srgb, var(--bg) 88%, #000 12%));
-}
-
-.jar-orbit{
-  position:absolute;
-  inset:0;
-}
-
-.jar-canvas{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  display:block;
-}
-
-.chapter-jar .chapter-eyebrow{
-  position:absolute;
-  top:48px; left:6vw;
-  z-index:3;
-}
-
-.hud-callout{
-  position:absolute;
-  z-index:3;
-  display:flex;
-  align-items:center;
-  gap:12px;
-  opacity:0;
-  transform:translateY(12px);
-  will-change:opacity, transform;
-  color:var(--ink);
-  font-size:13px;
-}
-
-.hud-line-tick{
-  width:36px; height:1px;
-  background:var(--ink);
-  display:inline-block;
-}
-
-.hud-callout-1{ top:22%; left:8vw; }
-.hud-callout-2{ top:48%; right:8vw; }
-.hud-callout-3{ bottom:18%; left:10vw; }
-
-/* ---------- ВАУ-МОМЕНТ 1: гигантское слово за банкой ---------- */
-.jar-word{
-  position:absolute; inset:0;
-  z-index:1;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-  pointer-events:none;
-}
-.jar-word span{
-  font-family:var(--font-head);
-  font-weight:900;
-  font-size:clamp(120px,26vw,420px);
-  line-height:1;
-  letter-spacing:0.01em;
-  white-space:nowrap;
-  color:rgba(16,11,6,0.07);
-  will-change:transform;
-}
-@supports (-webkit-text-stroke:1px black){
-  .jar-word span{
-    color:transparent;
-    -webkit-text-stroke:2px rgba(16,11,6,0.14);
-  }
-}
-.jar-orbit{ z-index:2; }
-
-@media (max-width:767px){
-  .jar-word span{ font-size:clamp(64px,30vw,150px); }
-}
-
-/* ==========================================================================
-   3. КРУГ, А НЕ ЦЕПОЧКА
+   2. КРУГ, А НЕ ЦЕПОЧКА
+   (бывшая глава 2 «Банка» удалена целиком — решение владельца. Её
+   canvas-вращение переехало в главу 3 «Что будет в банке», см. ниже.)
    ========================================================================== */
 .chapter-circle{
   background:var(--bg);
@@ -597,84 +520,6 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
 
 .circle-card-coop h3{ color:var(--accent); }
 
-/* ---------- ВАУ-МОМЕНТ 3: раскрытие карточки фермера (GSAP Flip) ---------- */
-.circle-card[data-stage="farmer"]{ cursor:pointer; }
-
-.circle-card[data-stage="farmer"]:focus-visible{
-  outline:2px solid var(--cta);
-  outline-offset:3px;
-}
-
-.circle-card-flip-caption{
-  display:none;
-  position:relative;
-  z-index:1;
-  font-family:var(--font-head);
-  font-weight:800;
-  font-size:clamp(24px,3.4vw,42px);
-  line-height:1.1;
-  color:var(--bg);
-  margin:0 0 10px;
-}
-
-.circle-card-placeholder{
-  display:none;
-  min-height:320px;
-  border-radius:20px;
-}
-
-.circle-card-placeholder.is-active{ display:block; }
-
-.circle-card-close{
-  all:unset;
-  display:none;
-  position:absolute; top:16px; right:16px;
-  z-index:2;
-  width:38px; height:38px;
-  align-items:center; justify-content:center;
-  border-radius:50%;
-  background:rgba(16,11,6,0.55);
-  color:var(--bg);
-  font-size:22px;
-  line-height:1;
-  cursor:pointer;
-}
-
-.circle-card-close:focus-visible{
-  outline:2px solid var(--cta);
-  outline-offset:2px;
-}
-
-.circle-flip-backdrop{
-  display:none;
-  position:fixed; inset:0;
-  z-index:998;
-  background:rgba(16,11,6,0.72);
-  opacity:0;
-  pointer-events:none;
-}
-
-.circle-flip-backdrop.is-active{
-  display:block;
-  opacity:1;
-  pointer-events:auto;
-}
-
-@media (min-width:768px){
-  .circle-card.is-expanded{
-    position:fixed;
-    inset:5vh 6vw;
-    z-index:999;
-    min-height:0;
-    max-height:none;
-    cursor:default;
-    padding:40px;
-  }
-  .circle-card.is-expanded h3{ display:none; }
-  .circle-card.is-expanded .circle-card-flip-caption{ display:block; }
-  .circle-card.is-expanded .circle-card-close{ display:flex; }
-}
-
 .circle-proof{
   font-size:13px;
   line-height:1.6;
@@ -686,39 +531,98 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
 }
 
 /* ==========================================================================
-   4. ЧТО БУДЕТ В БАНКЕ
+   ФЕРМЫ — ПОЛНОЭКРАННЫЙ СЛАЙД (сразу после «Круга, а не цепочки»)
    ========================================================================== */
-.chapter-dishes{
+.chapter-cows{
   position:relative;
-  background:var(--bg);
-  padding:0;
-  display:flex;
-  flex-direction:row;
-  align-items:stretch;
-  min-height:100vh;
+  width:100%;
+  height:100vh;
   overflow:hidden;
 }
 
-.dishes-media{
-  order:2;
-  flex:1 1 50%;
-  position:relative;
-  overflow:hidden;
-  min-height:100vh;
-}
-
-.dishes-media-img{
+.cows-bg{
   position:absolute;
-  left:0; right:0;
-  top:-40px; bottom:-40px;
+  inset:-6%;
   background-size:cover;
   background-position:center;
   will-change:transform;
 }
 
+.cows-scrim{
+  position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(16,11,6,.12) 0%, rgba(16,11,6,.32) 55%, rgba(16,11,6,.86) 100%);
+}
+
+.cows-content{
+  position:relative;
+  z-index:2;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:flex-end;
+  padding:0 6vw 96px;
+  max-width:900px;
+  color:var(--bg);
+}
+
+.cows-title{
+  font-family:var(--font-head);
+  font-weight:800;
+  font-size:clamp(32px,5.8vw,64px);
+  line-height:1.06;
+  color:var(--bg);
+  text-shadow:0 2px 24px rgba(16,11,6,.6);
+  margin-bottom:16px;
+  max-width:16ch;
+}
+
+.cows-sub{
+  font-size:13px;
+  letter-spacing:0.05em;
+  color:var(--bg);
+  opacity:0.88;
+  text-shadow:0 2px 12px rgba(16,11,6,.55);
+}
+
+@media (max-width:767px){
+  .cows-content{ padding:0 24px 64px; }
+}
+
+/* ==========================================================================
+   3. ЧТО БУДЕТ В БАНКЕ — сердце сайта.
+   Двухколоночная секция без GSAP-пина: правая колонка (.dishes-stage)
+   "прилипает" чистым CSS position:sticky, пока левая колонка со списком
+   блюд (.dishes-inner, естественная высота > 100vh) скроллится обычным
+   образом — тот же приём, что и в hero (см. .chapter-pin), только здесь без
+   отдельного sticky-класса на весь пин, т.к. пином нужна лишь половина
+   экрана. Прогресс скролла всей секции 0→1 крутит canvas банки (main.js).
+   ========================================================================== */
+.chapter-dishes-wrap{
+  position:relative;
+  background:var(--bg);
+}
+
+.chapter-dishes{
+  position:relative;
+  display:flex;
+  flex-direction:row;
+  align-items:flex-start;
+}
+
+.dishes-stage{
+  order:2;
+  flex:1 1 50%;
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow:hidden;
+}
+
 .dishes-inner{
   order:1;
   flex:1 1 50%;
+  min-height:200vh;
   padding:100px 5vw;
   display:flex;
   flex-direction:column;
@@ -756,6 +660,10 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
 .dishes-row-text{
   flex:1 1 auto;
   min-width:0;
+  font-size:14.5px;
+  line-height:1.5;
+  opacity:0.82;
+  transition:font-size 0.25s ease, opacity 0.25s ease;
 }
 
 .dishes-num{
@@ -770,12 +678,6 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
   font-weight:700;
 }
 
-.dishes-list div{
-  font-size:14.5px;
-  line-height:1.5;
-  opacity:0.85;
-}
-
 .dishes-disclaimer{
   font-size:11.5px;
   opacity:0.5;
@@ -784,23 +686,76 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
 }
 
 @media (max-width:767px){
-  .chapter-dishes{ flex-direction:column; min-height:0; }
-  .dishes-media{ order:-1; flex:none; width:100%; aspect-ratio:16/9; min-height:0; }
-  .dishes-inner{ padding:48px 20px; }
+  .chapter-dishes{ flex-direction:column; }
+  .dishes-stage{ order:-1; flex:none; width:100%; height:56vh; min-height:320px; }
+  .dishes-inner{ min-height:0; padding:48px 20px; }
 }
 
-/* ---------- ВАУ-МОМЕНТ 2: переключатель вкусов ---------- */
-.dishes-color-wash{
+/* ---------- ВАУ-МОМЕНТ 1: canvas-банка, живущая тут (см. main.js JarCanvas) ---------- */
+.jar-orbit{
   position:absolute; inset:0;
   z-index:1;
+}
+
+.jar-canvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+/* ---------- ВАУ-МОМЕНТ 2: переключатель вкусов = смена содержимого банки ---------- */
+.dishes-color-wash{
+  position:absolute; inset:0;
+  z-index:0;
   background-color:#8A3A1E;
-  opacity:0.55;
+  opacity:0.22;
   pointer-events:none;
+}
+
+/* Кросс-фейд фото блюда поверх вращающегося canvas: несколько наложенных
+   <img>, у активного — opacity:1, у остальных — 0. Canvas продолжает
+   крутиться независимо от того, что поверх него видно (DoD-проверка "c"
+   читает пиксели именно canvas, не эту прослойку). */
+.dishes-photo-layer{
+  position:absolute; inset:0;
+  z-index:2;
+}
+
+.dishes-photo{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  opacity:0;
+  transition:opacity 0.45s ease;
+}
+
+.dishes-photo.is-active{ opacity:1; }
+
+/* Блик по стеклу при смене блюда — короткая диагональная вспышка. */
+.dishes-flash{
+  position:absolute; inset:0;
+  z-index:3;
+  background:linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.55) 48%, transparent 66%);
+  opacity:0;
+  pointer-events:none;
+  mix-blend-mode:screen;
+}
+
+.dishes-flash.is-flashing{
+  animation:dishes-flash-sweep 0.6s ease forwards;
+}
+
+@keyframes dishes-flash-sweep{
+  0%{ opacity:0; transform:translateX(-30%); }
+  40%{ opacity:1; }
+  100%{ opacity:0; transform:translateX(30%); }
 }
 
 .dishes-desc{
   position:absolute; left:0; right:0; bottom:0;
-  z-index:2;
+  z-index:4;
   padding:28px clamp(20px,4vw,48px);
   background:linear-gradient(0deg, rgba(16,11,6,0.78) 0%, rgba(16,11,6,0) 100%);
   color:var(--bg);
@@ -857,8 +812,14 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
   color:var(--cta);
 }
 
+/* Активное блюдо показывается крупнее — требование ТЗ. */
+.dishes-row[aria-selected="true"] .dishes-row-text{
+  font-size:16.5px;
+  opacity:1;
+}
+
 /* ==========================================================================
-   5. МАНИФЕСТ
+   4. МАНИФЕСТ
    ========================================================================== */
 .chapter-manifesto-wrap{ height:300vh; }
 
@@ -894,11 +855,33 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
 }
 
 /* ==========================================================================
-   6. ЗАЯВКА
+   5. ЗАЯВКА
    ========================================================================== */
 .chapter-preorder{
-  background:var(--bg);
+  position:relative;
+  overflow:hidden;
+  background:var(--ink);
+  color:var(--bg);
   text-align:center;
+}
+
+/* Приглушённое атмосферное фото банки (jar-beef, уже подготовлено для главы
+   3 — переиспользуем, лишнего веса это не добавляет: файл уже в кэше
+   браузера к моменту, когда пользователь долистывает до формы). Сильное
+   затемнение поверх — форма и текст не должны конкурировать с картинкой. */
+.preorder-bg{
+  position:absolute; inset:0;
+  z-index:0;
+  background-image:url('assets/dishes/jar-beef.webp');
+  background-size:cover;
+  background-position:center;
+  opacity:0.4;
+}
+
+.preorder-scrim{
+  position:absolute; inset:0;
+  z-index:0;
+  background:linear-gradient(180deg, rgba(16,11,6,.88) 0%, rgba(16,11,6,.94) 100%);
 }
 
 .preorder-inner{
@@ -934,16 +917,16 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
 .preorder-counter-label{
   font-size:13px;
   letter-spacing:0.06em;
-  color:var(--ink);
-  opacity:0.7;
+  color:var(--bg);
+  opacity:0.75;
   margin:8px 0 0;
 }
 
 .preorder-counter-unit{
   font-size:clamp(13px,1.6vw,17px);
   letter-spacing:0.06em;
-  color:var(--ink);
-  opacity:0.7;
+  color:var(--bg);
+  opacity:0.75;
   margin-left:8px;
 }
 
@@ -959,7 +942,7 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
   width:min(480px,80vw);
   height:6px;
   border-radius:999px;
-  background:rgba(16,11,6,0.12);
+  background:rgba(245,228,199,0.2);
   margin:0 auto;
   overflow:hidden;
 }
@@ -999,8 +982,8 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
   width:100%;
   font-size:12px;
   letter-spacing:0.08em;
-  color:var(--ink);
-  opacity:0.6;
+  color:var(--bg);
+  opacity:0.75;
   text-align:center;
   margin-bottom:6px;
   padding:0;
@@ -1097,6 +1080,14 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
   text-align:left;
 }
 
+/* Глава 5 (заявка) теперь на тёмном фото-фоне (см. .preorder-bg/.preorder-scrim
+   выше) — тот же .consent-row переиспользуется и в главе 7 (пайщики, светлый
+   фон), поэтому светлый текст только здесь, скоуп через родителя. */
+.chapter-preorder .consent-row{
+  color:var(--bg);
+  opacity:0.92;
+}
+
 .consent-row input[type="checkbox"]{
   flex:0 0 auto;
   margin-top:3px;
@@ -1122,7 +1113,7 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
 }
 
 /* ==========================================================================
-   7. МИССИЯ + КАРТА ЗАЯВОК (обычный скролл, без пина)
+   6. МИССИЯ + КАРТА ЗАЯВОК (обычный скролл, без пина)
    ========================================================================== */
 .chapter-mission{
   background:linear-gradient(160deg, var(--ink) 0%, var(--ink-2) 85%);
@@ -1294,7 +1285,7 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
 }
 
 /* ==========================================================================
-   8. ПАЙЩИКИ + ФУТЕР
+   7. ПАЙЩИКИ + ФУТЕР
    ========================================================================== */
 .chapter-members{
   background:linear-gradient(180deg, #EBD9B4 0%, #F5E4C7 25%);
@@ -1358,20 +1349,14 @@ h1,h2,h3{ font-family:var(--font-head); margin:0; }
    ========================================================================== */
 @media (min-width:768px){
   .hero-content{ padding-right:max(6vw,160px); }
-  .hud-callout-2{ right:max(8vw,160px); }
   .manifesto-lines{ padding-right:max(6vw,160px); }
   .chapter-section{ padding-right:160px; }
-  /* Глава 4 — фото занимает правую половину экрана целиком, поверх шкалы
-     прослеживаемости (она полупрозрачна и не мешает восприятию картинки),
-     поэтому исключаем её из общего резерва под #scale. */
-  .chapter-section.chapter-dishes{ padding-right:0; }
 }
 
 /* ==========================================================================
    REDUCED MOTION
    ========================================================================== */
 body.reduced-motion .chapter-hero-wrap,
-body.reduced-motion .chapter-jar-wrap,
 body.reduced-motion .chapter-manifesto-wrap{
   height:auto;
 }
@@ -1382,6 +1367,12 @@ body.reduced-motion .chapter-pin{
   position:static;
 }
 
+/* Глава 3 (ассортимент) не использует .chapter-pin (сама придумывает sticky
+   через .dishes-stage) — под reduced-motion сброс sticky/min-height нужен
+   отдельно: без scrub искусственный 200vh запас скролла не нужен. */
+body.reduced-motion .dishes-inner{ min-height:auto; }
+body.reduced-motion .dishes-stage{ position:static; height:60vh; }
+
 body.reduced-motion .hero-title .word{
   opacity:1 !important;
   transform:none !important;
@@ -1390,11 +1381,6 @@ body.reduced-motion .hero-title .word{
 body.reduced-motion .hero-video{ display:none; }
 
 body.reduced-motion .manifesto-line{
-  opacity:1 !important;
-  transform:none !important;
-}
-
-body.reduced-motion .hud-callout{
   opacity:1 !important;
   transform:none !important;
 }
